@@ -27,21 +27,14 @@ import urllib
 from xml.dom import minidom
 
 class SearchLyrics:
-    """ Chercher des paroles de chansons """
+    """ Search lyrics from artist and song title. """
         
-    def SearchLyrics(self, *args, **kwds):
-        """
-        Cherche les paroles de chansons sur internet
-        et les retourne
-        """
-        
-        artist = kwds["artist"]
-        song = kwds["song"]
+    def SearchLyrics(self, artist, song):
+        """ Get list of songs from leoslyrics.com """
         
         result = {}
-        result["artistSubmitted"] = artist
-        result["songSubmitted"] = song
         
+        # Open a socket and analyse xml file to see results
         try:
             resultSock = urllib.urlopen('http://api.leoslyrics.com/api_search.php?auth=wxLyrics&artist=%s&songtitle=%s' %
                                         (urllib.quote(artist.encode('utf-8')), urllib.quote(song.encode('utf-8'))))
@@ -54,37 +47,36 @@ class SearchLyrics:
             resultCode = 1
         
         if resultCode == '0':
+            # Create list from result
             matches = resultDoc.getElementsByTagName('result')[:20]
             hid = map(lambda x: x.getAttribute('hid'), matches)
-            
-            if len(hid) == 0:
-                text = _("No lyrics found for this song")
-            
             songTitleDom = resultDoc.getElementsByTagName('title')[:20]
             songTitle = map(lambda x: x.firstChild.nodeValue, songTitleDom)
             artistNameDom = resultDoc.getElementsByTagName('name')[:20]
             artistName = map(lambda x: x.firstChild.nodeValue, artistNameDom)
             
+            if len(hid) == 0:
+                text = _("No lyrics found for this song")
+            
             songList = {}
             i = 0
             
+            # Create a list[artist name, song title, hid]
             for results in zip(artistName, songTitle):
                 list = [results[0], results[1], hid[i]]
                 songList[i] = list
                 i += 1
                 
             result["songlist"] = songList
-            
             resultDoc.unlink()
             
         return result
     
     def ShowLyrics(self, hid):
-        """ Télécharge les paroles """
+        """ Download lyrics. """
         
         result = {}
         
-        # Téléchargement des paroles
         try:
             lyricsSock = urllib.urlopen("http://api.leoslyrics.com/api_lyrics.php?auth=QuodLibet&hid=%s" % ( urllib.quote(hid.encode('utf-8'))))
             lyricsDoc = minidom.parse(lyricsSock).documentElement

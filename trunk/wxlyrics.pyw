@@ -1,6 +1,6 @@
 #
 #!/usr/bin/env python
-# -*- coding: latin-1 -*-
+# -*- coding: utf-8 -*-
 #
 
 #	Programmer:	Svoboda Vladimir
@@ -35,7 +35,7 @@ from wax.tools.choicedialog import ChoiceDialog
 from searchlyrics import *
 
 class Printer(wx.html.HtmlEasyPrinting):
-    """ Impression de code HTML """
+    """ Prints HTML code. """
     
     def __init__(self, parent):
         wx.html.HtmlEasyPrinting.__init__(self)
@@ -45,30 +45,26 @@ class Printer(wx.html.HtmlEasyPrinting):
         self.PrintText(text)
 
 class MainFrame(wax.Frame):
-    """
-    Fenêtre principale avec menu, barre de statut et
-    la boite de dialogue pour les paroles
-    """
+    """ Main window with menu, status bar and notebook (tabs) for lyrics. """
     def Body(self):
-        # Initilisation de variables
         self.lyrics = {}
-        self.filename = None
+        self.filename = [None]
         
-        # Barre de status
+        # Create status bar
         self.statusBar = wax.StatusBar(self, numpanels=2)
         self.SetStatusBar(self.statusBar)
         
-        # Création du menu et du corps de la fenêtre
+        # Create menu and body
         self.CreateMenu()
         self.CreateBody()
         
     def CreateBody(self):
         """ Contenu de la frame """
         
-        # Panneau vertical contenant d'abord les boutons et ensuite la boite de texte
+        # Vertical panel: buttons ; notebook
         self.vPanel = wax.VerticalPanel(self)
         
-        # Les boutons
+        # Buttons
         self.vPanel.hPanelInput = wax.HorizontalPanel(self.vPanel)
         
         self.vPanel.hPanelInput.artistInput = wax.TextBox(self.vPanel.hPanelInput, _("Artist"))
@@ -80,12 +76,13 @@ class MainFrame(wax.Frame):
         self.vPanel.hPanelInput.AddComponent(self.vPanel.hPanelInput.searchButton, border = 5)
         self.vPanel.hPanelInput.Pack()
         
-        # La TextBox
+        # NoteBook
         self.vPanel.noteBook = wax.NoteBook(self.vPanel, size = (400, 300))
         self.vPanel.noteBook.tab = [wax.Panel(self.vPanel.noteBook)]
         
-        # Onglets
+        # Tabs
         self.usedTab = [False]
+        self.currentTab = 0
         self.vPanel.noteBook.tab[0].lyricsText = wax.TextBox(self.vPanel.noteBook.tab[0], multiline=1, Value = _("Lyrics"))
         self.vPanel.noteBook.tab[0].AddComponent(self.vPanel.noteBook.tab[0].lyricsText, expand = 'both')
         self.vPanel.noteBook.AddPage(self.vPanel.noteBook.tab[0], _("Untitled %s") % 1)
@@ -97,12 +94,12 @@ class MainFrame(wax.Frame):
         
         self.AddComponent(self.vPanel, expand = 'both')
         
-        # Paramètres de la fenêtre
+        # Window Settings
         self.SetSize((450, 350))
         self.Pack()
     
     def CreateMenu(self):
-        """ Barre de menu """
+        """ Create menu bar """
         menuBar = wax.MenuBar(self)
         
         fileMenu = wax.Menu(self)
@@ -124,7 +121,7 @@ class MainFrame(wax.Frame):
         menuBar.Append(helpMenu, "&?")
     
     def OnQuit(self, event = None):
-        """ Quitter le programme """
+        """ Quit application """
         quitDialog = wax.MessageDialog(self, text = _("Do you really want to quit wxLyrics"), icon = "question", yes_no = 1)
         if quitDialog.ShowModal() == 'yes':
             self.Close(True)
@@ -137,8 +134,8 @@ class MainFrame(wax.Frame):
         
     def OnSaveAs(self, event = None):
         """ Enregistre le fichier """
-        if self.filename:
-            self._SaveFile(self.filename)
+        if self.filename[self.currentTab]:
+            self._SaveFile(self.filename[self.currentTab])
         else:
             saveDialog = wax.FileDialog(self, save = 1)
             try:
@@ -150,7 +147,7 @@ class MainFrame(wax.Frame):
                 saveDialog.Destroy()
                 
     def OnPrint(self, event = None):
-        """ Imprimer les paroles """
+        """ Print lyrics """
         
         self.lyricsHTML = self._GenerateHTML("%s - %s" % (self.lyrics["artist"], self.lyrics["song"]), self.lyrics["lyrics"]["lyrics"])
         
@@ -158,27 +155,28 @@ class MainFrame(wax.Frame):
         self.printer.Print(self.lyricsHTML)
     
     def OnAbout(self, event = None):
+        """ About dialog. """
         aboutDialog = AboutDialog(self, _("About wxLyrics"))
         aboutDialog.ShowModal()
         aboutDialog.Destroy()
     
     def OnHelp(self, event = None):
-        """ Aide """
+        """ Help dialog. """
         helpMessage = _("Fill the fields 'artist' and 'song title'. You will receive a list of song")
         helpFrame = wax.MessageDialog(self, _("Help"), helpMessage, ok = 1, icon = "information")
         helpFrame.ShowModal()
         helpFrame.Destroy()
         
     def OnSearch(self, event = None):
-        """ Recherche les paroles et les affiche """
+        """ Search lyrics and show them. """
         
-        # Récupère les données
+        # Get data from input
         input = self.vPanel.hPanelInput
         artist = input.artistInput.GetValue()
         song = input.songInput.GetValue()
         inputValidity = True
         
-        # Vérifie les champs
+        # Verify fields
         if len(artist) < 3 and len(song) < 3:
             errorFrame = wax.MessageDialog(self, _("Error"), _("Fill required fields"), ok = 1, icon = "error")
             errorFrame.ShowModal()
@@ -186,11 +184,10 @@ class MainFrame(wax.Frame):
             inputValidity = False
             
         else:
-            # On efface les données précédentes
             self.SetFilename(None)
             self.statusBar[1] = _("Searching")
             
-            # Crée un nouvel onglet si besoin est
+            # Create a tab if needed
             self.currentTab = self.vPanel.noteBook.GetSelection()
             if self.usedTab[self.currentTab] == True:
                 self._NewTab()
@@ -199,13 +196,13 @@ class MainFrame(wax.Frame):
             self.vPanel.noteBook.tab[self.currentTab].lyricsText.Clear()
             self.vPanel.noteBook.tab[self.currentTab].lyricsText.InsertText(0, _("Seeking '%s' from %s ...") % (song, artist))
             
-            # Recherche
+            # Search
             search = SearchLyrics()
-            result = search.SearchLyrics(artist = artist, song = song)
+            result = search.SearchLyrics(artist, song)
             
             self.vPanel.noteBook.tab[self.currentTab].lyricsText.Clear()
             
-            # Détecte les erreurs éventuelles
+            # Detect errors
             try: self.error = result["error"]
             except Exception, err: self.error = False
             
@@ -221,7 +218,7 @@ class MainFrame(wax.Frame):
                 else:
                     songSelected = []
                     
-                    # Choix de la chanson
+                    # Song choice
                     if len(result["songlist"].values()) == 1:
                         songSelected = result["songlist"][0]
                     else:
@@ -238,14 +235,13 @@ class MainFrame(wax.Frame):
                         
                         choiceDialog.Destroy()
                     
-                    # Il y a 3 champs dans le tableau s'il contient ce qu'il devrait
+                    # If the tuple didn't contain 3 fields, there's an error
                     if len(songSelected) != 3:
                         self.lyrics["error"] = _("No results")
                         self.vPanel.noteBook.tab[self.currentTab].lyricsText.Clear()
                         self.statusBar[1] = ""
                     else:
-                        # Téléchargement
-                        
+                        # Download lyrics
                         self.lyrics["artist"] = songSelected[0]
                         self.lyrics["song"] = songSelected[1]
                         self.lyrics["hid"] = songSelected[2]
@@ -254,7 +250,7 @@ class MainFrame(wax.Frame):
                         
                         self.lyrics["lyrics"] = search.ShowLyrics(self.lyrics["hid"])
                      
-                        # Détècte les erreurs éventuelles
+                        # Detect errors
                         try: self.error = self.lyrics["lyrics"]["error"]
                         except Exception, err: self.error = False
                         
@@ -272,13 +268,10 @@ class MainFrame(wax.Frame):
                             self.usedTab[self.currentTab] = True
     
     def _NewTab(self, movingon = True):
-        """
-        Crée un nouvel onglet et se déplace dessus
-        selon la valeur de moving on et si l'onglet
-        courant est utilisé ou non
-        """
+        """ Create new tab and moves on if precedent tab is used or not. """
         
         tabNumber = len(self.vPanel.noteBook.tab)
+        self.filename.append(None)
         self.vPanel.noteBook.tab.append(wax.Panel(self.vPanel.noteBook))
         self.usedTab.append(False)
         self.vPanel.noteBook.tab[tabNumber].lyricsText = wax.TextBox(self.vPanel.noteBook.tab[tabNumber], multiline=1, Value = _("Lyrics"))
@@ -288,14 +281,15 @@ class MainFrame(wax.Frame):
         self.vPanel.noteBook.tab[tabNumber].Pack()
         
         self.SetSize((420, 350))
-        # Se déplace sur le nouvel onglet
+        
+        # Move on new tab
         if movingon == True and self.usedTab[self.vPanel.noteBook.GetSelection()] == True:
             self.vPanel.noteBook.SetSelection(tabNumber)
     
     def _CloseTab(self):
-        """ Supprime l'onglet courant """
+        """ Delete current tab """
         
-        currentTab = self.vPanel.noteBook.GetSelection()
+        currentTab = self.currentTab
         
         if self.vPanel.noteBook.GetPageCount() == 1:
             self.vPanel.noteBook.tab[0].lyricsText.Clear()
@@ -311,38 +305,39 @@ class MainFrame(wax.Frame):
                 self.usedTab[currentTab] = False
                 
             self.vPanel.noteBook.RemovePage(currentTab)
+            self.filename.remove(self.filename[self.currentTab])
             self.vPanel.noteBook.tab.remove(self.vPanel.noteBook.tab[currentTab])
     
     def _GenerateHTML(self, header, content):
-        """ Génère du code HTML """
+        """ Generate HTML code. """
         
         HTML = "<h3 align=\"center\">%s</h3><br><br><span style=\"font-size: 10pt\">%s</span>" % (header, content)
         
         return HTML.encode('latin-1', 'replace').replace('\n', '<br>')
     
     def _SaveFile(self, filename):
-        """ Sauve les paroles dans un fichier texte """
+        """ Save lyrics in text file """
         filename = open(filename, 'w')
         filename.write(self.vPanel.noteBook.tab[0].lyricsText.GetValue().encode('latin-1', 'replace'))
         filename.close()
         
     def SetFilename(self, filename):
-        self.filename = filename
-        self.statusBar[0] = str(self.filename)
+        self.filename[self.currentTab] = filename
+        self.statusBar[0] = str(self.filename[self.currentTab])
 
 class AboutDialog(wax.CustomDialog):
-    """ Création de la fenêtre "A propos" """
+    """ Create About window. """
     
     def Body(self):
         import platform
         
-        # Création de la boite de dialogue
+        # Create dialog
         programName = wax.Label(self, "wxLyrics %s" % config.get('Program', 'Version'))
         programName.SetFont(('Verdana', 14))
         noteBook = wax.NoteBook(self, size = (400,300))
         closeButton = wax.Button(self, "Fermer", event = self.OnQuit)
         
-        # Onglet A Propos
+        # About tab
         aboutTab = wax.Panel(noteBook)
         
         aboutTab.copyrightText = _("wxLyrics - A simple lyrics viewer")
@@ -355,7 +350,7 @@ class AboutDialog(wax.CustomDialog):
         aboutTab.Pack()
         noteBook.AddPage(aboutTab, _("About"))
         
-        # Onglet licence
+        # License tab
         licenceTab = wax.Panel(noteBook)
         licenceTab.file = open('COPYING', 'r')
         licenceTab.text = wax.TextBox(licenceTab, multiline = 1, Value = licenceTab.file.read())
@@ -364,8 +359,7 @@ class AboutDialog(wax.CustomDialog):
         licenceTab.Pack()
         noteBook.AddPage(licenceTab, _("License"))
         
-        
-        # Onglet Informations
+        # Informations tab
         infoTab = wax.Panel(noteBook)
         
         infoTab.infoText = _("System: %s") % platform.platform()
@@ -376,7 +370,7 @@ class AboutDialog(wax.CustomDialog):
         infoTab.Pack()
         noteBook.AddPage(infoTab, _("Informations"))
         
-        # Placement des objets
+        # Window settings
         self.AddComponent(programName, align = 'center')
         self.AddSpace(10)
         self.AddComponent(noteBook, expand = 'both')
@@ -387,14 +381,17 @@ class AboutDialog(wax.CustomDialog):
         self.Close()
         
 if __name__ == "__main__":
+    # Configuration file
     configFile = os.path.join(os.getcwd(), "wxLyrics.conf")
     config = ConfigParser.ConfigParser()
     config.readfp(open(configFile, 'r'))
     
+    # Gettext init
     gettext.bindtextdomain("wxlyrics")
     locale.setlocale(locale.LC_ALL,'')
     gettext.textdomain("wxlyrics")
-    gettext.install("wxlyrics",localedir = config.get("Locale", "Dir"),unicode = 1)
+    gettext.install("wxlyrics",localedir = config.get("Locale", "Dir"), unicode = 1)
     
+    # Creates windows
     wxLyrics = wax.Application(MainFrame, title = "wxLyrics")
     wxLyrics.Run()
