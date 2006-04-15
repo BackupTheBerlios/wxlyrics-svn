@@ -18,8 +18,6 @@
 #	You should have received a copy of the GNU General Public License
 #	along with this program; if not, write to the Free Software
 #	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-#
-#	Requirements (Dependencies):  Python, wxPython and waxgui.
 
 # SearchLyrics class
 
@@ -81,6 +79,9 @@ class SearchLyrics:
             lyricsSock = urllib.urlopen("http://api.leoslyrics.com/api_lyrics.php?auth=QuodLibet&hid=%s" % ( urllib.quote(hid.encode('utf-8'))))
             lyricsDoc = minidom.parse(lyricsSock).documentElement
             lyricsSock.close()
+            
+            try: result["album"] = lyricsDoc.getElementsByTagName('name')[1].firstChild.nodeValue
+            except Exception, err: result["album"] = _("Unknow Album")
             
             result["lyrics"] = lyricsDoc.getElementsByTagName('text')[0].firstChild.nodeValue
             lyricsDoc.unlink()
