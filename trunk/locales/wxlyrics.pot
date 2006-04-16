@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2006-04-16 12:10+CEST\n"
+"POT-Creation-Date: 2006-04-16 12:25+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -157,7 +157,7 @@ msgid "wxLyrics - A simple lyrics viewer"
 msgstr ""
 
 #: ../wxlyrics.pyw:388
-msgid "Lyrics provided by %s."
+msgid "Lyrics provided by %s"
 msgstr ""
 
 #: ../wxlyrics.pyw:393

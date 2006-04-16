@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: wxLyrics\n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2006-04-16 12:11+0100\n"
+"PO-Revision-Date: 2006-04-16 12:27+0100\n"
 "Last-Translator: Svoboda Vladimir\n"
 "Language-Team: ZeVlad <ze.vlad@gmail.com>\n"
 "MIME-Version: 1.0\n"
@@ -164,8 +164,8 @@ msgid "wxLyrics - A simple lyrics viewer"
 msgstr "wxLyrics - Visionneuse de paroles"
 
 #: ../wxlyrics.pyw:388
-msgid "Lyrics provided by %s."
-msgstr "Paroles fournies par %s."
+msgid "Lyrics provided by %s"
+msgstr "Paroles fournies par %s"
 
 #: ../wxlyrics.pyw:393
 msgid "About"

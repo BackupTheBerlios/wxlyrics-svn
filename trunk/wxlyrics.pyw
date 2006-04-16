@@ -17,7 +17,7 @@
 #	Requirements (Dependencies): wxPython and waxgui.
 
 import sys, os
-sys.path.append("/svn/")
+sys.path.append(os.path.abspath("../"))
 
 import locale, gettext, ConfigParser
 import wax, wx.html
@@ -247,7 +247,7 @@ class MainFrame(wax.Frame):
                         
                         choiceDialog.Destroy()
                     
-                    # If the tuple didn't contain 3 fields, there's an error
+                    # If tuple didn't contain 3 fields, there's an error
                     if len(songSelected) != 3:
                         self.lyrics['error'] = _("No results")
                         self.vPanel.noteBook.tab[self.currentTab].lyricsText.Clear()
@@ -385,7 +385,7 @@ class AboutDialog(wax.CustomDialog):
         aboutTab.copyrightText = _("wxLyrics - A simple lyrics viewer")
         aboutTab.copyrightText += "\n(c) 2006, Svoboda Vladimir"
         aboutTab.copyrightText += "\n<ze.vlad@gmail.com>\n"
-        aboutTab.copyrightText += _("Lyrics provided by %s.") % "http://www.lesolyrics.com"
+        aboutTab.copyrightText += _("Lyrics provided by %s") % "leoslyrics"
         
         aboutTab.copyright = wax.Label(aboutTab, aboutTab.copyrightText)
         aboutTab.AddComponent(aboutTab.copyright, border = 10)
