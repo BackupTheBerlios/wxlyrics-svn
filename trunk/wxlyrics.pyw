@@ -1,5 +1,5 @@
 #
-#!/usr/bin/env python
+#!/usr/bin/env python -u
 # -*- coding: utf-8 -*-
 #
 
@@ -17,8 +17,6 @@
 #	Requirements (Dependencies): wxPython and waxgui.
 
 import sys, os
-sys.path.append(os.path.abspath("../"))
-
 import locale, gettext, ConfigParser
 import wax, wx.html
 from wax.tools.choicedialog import ChoiceDialog
@@ -93,7 +91,7 @@ class MainFrame(wax.Frame):
         menuBar = wax.MenuBar(self)
         
         fileMenu = wax.Menu(self)
-        fileMenu.Append(_("Open a new &tab"), self.OnNewTab, hotkey = "Ctrl-T")
+        fileMenu.Append(_("Open new &tab"), self.OnNewTab, hotkey = "Ctrl-T")
         fileMenu.Append(_("&Close tab"), self.OnCloseTab, hotkey = "Ctrl-W")
         fileMenu.AppendSeparator()
         fileMenu.Append(_("&Save as"), self.OnSaveAs, hotkey = "Ctrl-S")
@@ -103,12 +101,16 @@ class MainFrame(wax.Frame):
         fileMenu.AppendSeparator()
         fileMenu.Append(_("E&xit"), self.OnQuit, hotkey = "Ctrl-Q")
         
+        editMenu = wax.Menu(self)
+        editMenu.Append(_("&Preferences"), self.OnPreferences)
+        
         helpMenu = wax.Menu(self)
         helpMenu.Append(_("&Help"), self.OnHelp, hotkey = "F1")
         helpMenu.AppendSeparator()
         helpMenu.Append(_("&About wxLyrics"), self.OnAbout)
         
         menuBar.Append(fileMenu, _("&File"))
+        menuBar.Append(editMenu, _("&Edit"))
         menuBar.Append(helpMenu, "&?")
     
     def OnQuit(self, event = None):
@@ -165,6 +167,12 @@ class MainFrame(wax.Frame):
         
         self.printer = Printer(self)
         self.printer.Print(self.lyricsHTML)
+    
+    def OnPreferences(self, event = None):
+        """ Preferences dialog. """
+        prefDialog = PreferencesDialog(self, _("Preferences"))
+        prefDialog.ShowModal()
+        prefDialog.Destroy()
     
     def OnAbout(self, event = None):
         """ About dialog. """
@@ -282,7 +290,7 @@ class MainFrame(wax.Frame):
                                                                         'album': self.lyrics['lyrics']['album'], 'lyrics': self.lyrics['lyrics']['lyrics']}
     
     def _NewTab(self, movingon = True):
-        """ Create a new tab and moves on, if precedent tab is used or not. """
+        """ Create new tab and moves on, if precedent tab is used or not. """
         
         tabNumber = len(self.vPanel.noteBook.tab)
         self.filename.append(None)
@@ -303,7 +311,7 @@ class MainFrame(wax.Frame):
     def _CloseTab(self):
         """ Delete current tab. """
         
-        currentTab = self.currentTab
+        currentTab = self.vPanel.noteBook.GetSelection()
         
         if self.vPanel.noteBook.GetPageCount() == 1:
             self.vPanel.noteBook.tab[0].lyricsText.Clear()
@@ -311,7 +319,7 @@ class MainFrame(wax.Frame):
             self.vPanel.noteBook.SetPageText(0, _("Untitled %s") % 1)
             self.result[0] = None
             self.filename[0] = None
-            self.currentTab = 1
+            self.currentTab = 0
         else:
             try:
                 if self.usedTab[currentTab + 1] == True:
@@ -345,7 +353,7 @@ class MainFrame(wax.Frame):
         else:
             try:
                 filename = open(filename, 'w')
-                filename.write(self.vPanel.noteBook.tab[0].lyricsText.GetValue())
+                filename.write(self.vPanel.noteBook.tab[0].lyricsText.GetValue().encode('latin-1', 'replace'))
                 filename.close()
             except Exception, err:
                 print err
@@ -367,6 +375,33 @@ class MainFrame(wax.Frame):
         self.filename[self.currentTab] = filename
         self.statusBar[0] = str(self.filename[self.currentTab])
 
+class PreferencesDialog(wax.CustomDialog):
+    """ Create Preferences window. """
+    
+    def Body(self):
+        gPanel = wax.GridPanel(self, rows = 3, cols = 2, hgap = 0, vgap = 0)
+        
+        self.baseDir = wax.TextBox(gPanel, Value = config.get('Output', 'BaseDir'))
+        self.fileModel = wax.TextBox(gPanel, Value = config.get('Output', 'Model'))
+        self.fileExample = wax.Label(gPanel, "Manau/Fest Noz De Paname/Manau - Dafunkamanu.txt")
+        
+        gPanel.AddComponent(0, 0, wax.Label(gPanel, _("Output directory")))
+        gPanel.AddComponent(0, 1, wax.Label(gPanel, _("File model")))
+        gPanel.AddComponent(0, 2, wax.Label(gPanel, _("Example")))
+        gPanel.AddComponent(1, 0, self.baseDir)
+        gPanel.AddComponent(1, 1, self.fileModel)
+        gPanel.AddComponent(1, 2, self.fileExample)
+        gPanel.Pack()
+        
+        self.AddComponent(wax.Label(self, _("Global preferences")))
+        self.AddComponent(gPanel, expand = 'both', border = 10)
+        self.AddComponent(wax.Button(self, _("Close"), event = self.OnQuit), border = 3, align = 'center')
+        self.Pack()
+        self.Size = 300, 200
+        
+    def OnQuit(self, event = None):
+        self.Close()
+        
 class AboutDialog(wax.CustomDialog):
     """ Create About window. """
     
@@ -424,15 +459,15 @@ class AboutDialog(wax.CustomDialog):
         
 if __name__ == "__main__":
     # Configuration file
-    configFile = os.path.join(os.getcwd(), "wxlyrics.cfg")
+    configFile = os.path.join(os.path.abspath('wxlyrics.cfg'))
     config = ConfigParser.ConfigParser()
     config.readfp(open(configFile, 'r'))
     
     # Gettext init
-    gettext.bindtextdomain("wxlyrics")
-    locale.setlocale(locale.LC_ALL,'')
-    gettext.textdomain("wxlyrics")
-    gettext.install("wxlyrics",localedir = config.get("Locale", "Dir"), unicode = 1)
+    gettext.bindtextdomain('wxlyrics')
+    locale.setlocale(locale.LC_ALL, '')
+    gettext.textdomain('wxlyrics')
+    gettext.install('wxlyrics', os.path.abspath('locales'), unicode = 1)
     
     # Creates windows
     wxLyrics = wax.Application(MainFrame, title = "wxLyrics")
