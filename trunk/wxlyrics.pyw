@@ -3,31 +3,21 @@
 # -*- coding: utf-8 -*-
 #
 
-#	Programmer:	Svoboda Vladimir
-#	E-mail:	ze.vlad@gmail.com
+#	Programmer: Svoboda Vladimir
+#	E-mail: ze.vlad@gmail.com
 #
 #	Copyright 2006 Svoboda Vladimir
 #
 #	Distributed under the terms of the GPL (GNU Public License)
 #
-#	wxLyrics is free software; you can redistribute it and/or modify
-#	it under the terms of the GNU General Public License as published by
-#	the Free Software Foundation; either version 2 of the License, or
-#	(at your option) any later version.
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of version 2 of the GNU General Public License as
+# published by the Free Software Foundation.
 #
-#	This program is distributed in the hope that it will be useful,
-#	but WITHOUT ANY WARRANTY; without even the implied warranty of
-#	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#	GNU General Public License for more details.
-#
-#	You should have received a copy of the GNU General Public License
-#	along with this program; if not, write to the Free Software
-#	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-#
-#	Requirements (Dependencies):  Python, wxPython and waxgui.
+#	Requirements (Dependencies): wxPython and waxgui.
 
 import sys, os
-sys.path.append(os.path.join(os.getcwd(), "../"))
+sys.path.append("/svn/")
 
 import locale, gettext, ConfigParser
 import wax, wx.html
@@ -151,8 +141,8 @@ class MainFrame(wax.Frame):
         """ Save lyrics to a file depending on a model. """
         
         try:
-            filePath = self._GenerateFilename(artist = self.result[self.currentTab]["artist"], song = self.result[self.currentTab]["song"],
-                         album = self.result[self.currentTab]["album"])
+            filePath = self._GenerateFilename(artist = self.result[self.currentTab]['artist'], song = self.result[self.currentTab]['song'],
+                         album = self.result[self.currentTab]['album'])
             baseDir = os.path.expanduser(config.get('Output', 'BaseDir'))
             fullPath = os.path.join(baseDir, filePath)
             pathToFile = os.path.dirname(fullPath)
@@ -170,8 +160,8 @@ class MainFrame(wax.Frame):
         """ Print lyrics. """
         
         self.currentTab = self.vPanel.noteBook.GetSelection()
-        self.lyricsHTML = self._GenerateHTML("%s - %s" % (self.result[self.currentTab]["artist"], self.result[self.currentTab]["song"]),
-                                 self.result[self.currentTab]["lyrics"])
+        self.lyricsHTML = self._GenerateHTML("%s - %s" % (self.result[self.currentTab]['artist'], self.result[self.currentTab]['song']),
+                                 self.result[self.currentTab]['lyrics'])
         
         self.printer = Printer(self)
         self.printer.Print(self.lyricsHTML)
@@ -225,7 +215,7 @@ class MainFrame(wax.Frame):
             self.vPanel.noteBook.tab[self.currentTab].lyricsText.Clear()
             
             # Detect errors
-            try: self.error = result["error"]
+            try: self.error = result['error']
             except Exception, err: self.error = False
             
             if self.error != False:
@@ -233,7 +223,7 @@ class MainFrame(wax.Frame):
                 errorFrame.ShowModal()
                 errorFrame.Destroy()
             else:
-                if len(result["songlist"].values()) == 0:
+                if len(result['songlist'].values()) == 0:
                     self.vPanel.noteBook.tab[self.currentTab].lyricsText.InsertText(0, _("No correspondence found"))
                     self.statusBar[1] = _("No correspondence found")
                     
@@ -241,58 +231,58 @@ class MainFrame(wax.Frame):
                     songSelected = []
                     
                     # Song choice
-                    if len(result["songlist"].values()) == 1:
-                        songSelected = result["songlist"][0]
+                    if len(result['songlist'].values()) == 1:
+                        songSelected = result['songlist'][0]
                     else:
                         i = 0
                         choices = {}
                         
-                        for results in result["songlist"].values():
+                        for results in result['songlist'].values():
                             choices[i] = "%s - %s"  % (results[1], results[0])
                             i += 1
                             
                         choiceDialog = ChoiceDialog(self, choices = choices.values(), prompt = _("Make your choice"), title = _("Results"), size = (300, 200))
                         if choiceDialog.ShowModal() == 'ok':
-                            songSelected = result["songlist"][choiceDialog.choice]
+                            songSelected = result['songlist'][choiceDialog.choice]
                         
                         choiceDialog.Destroy()
                     
                     # If the tuple didn't contain 3 fields, there's an error
                     if len(songSelected) != 3:
-                        self.lyrics["error"] = _("No results")
+                        self.lyrics['error'] = _("No results")
                         self.vPanel.noteBook.tab[self.currentTab].lyricsText.Clear()
                         self.statusBar[1] = ""
                     else:
                         # Download lyrics
-                        self.lyrics["artist"] = songSelected[0]
-                        self.lyrics["song"] = songSelected[1]
-                        self.lyrics["hid"] = songSelected[2]
+                        self.lyrics['artist'] = songSelected[0]
+                        self.lyrics['song'] = songSelected[1]
+                        self.lyrics['hid'] = songSelected[2]
                         
-                        self.vPanel.noteBook.tab[self.currentTab].lyricsText.InsertText(0, _("Downloading '%s' ...") % self.lyrics["song"])
+                        self.vPanel.noteBook.tab[self.currentTab].lyricsText.InsertText(0, _("Downloading '%s' ...") % self.lyrics['song'])
                         
-                        self.lyrics["lyrics"] = search.ShowLyrics(self.lyrics["hid"])
+                        self.lyrics['lyrics'] = search.ShowLyrics(self.lyrics['hid'])
                      
                         # Detect errors
-                        try: self.error = self.lyrics["lyrics"]["error"]
+                        try: self.error = self.lyrics['lyrics']['error']
                         except Exception, err: self.error = False
                         
                         if self.error != False:
-                            errorFrame = wax.MessageDialog(self, _("Error"), self.lyrics["lyrics"]["error"], ok = 1, icon = "error")
+                            errorFrame = wax.MessageDialog(self, _("Error"), self.lyrics['lyrics']['error'], ok = 1, icon = "error")
                             errorFrame.ShowModal()
                             errorFrame.Destroy()
-                            self.statusBar[1] = self.lyrics["lyrics"]["error"]
+                            self.statusBar[1] = self.lyrics['lyrics']['error']
                         else:
                             self.vPanel.noteBook.tab[self.currentTab].lyricsText.Clear()
-                            self.vPanel.noteBook.tab[self.currentTab].lyricsText.InsertText(0, self.lyrics["lyrics"]["lyrics"])
-                            self.vPanel.noteBook.tab[self.currentTab].lyricsText.InsertText(0, "[%s - %s]\r\r" % (self.lyrics["artist"], self.lyrics["song"]))
-                            self.vPanel.noteBook.SetPageText(self.currentTab, "%s - %s" % (self.lyrics["artist"], self.lyrics["song"]))
-                            self.statusBar[1] = self.lyrics["artist"] + " - " + self.lyrics["song"]
+                            self.vPanel.noteBook.tab[self.currentTab].lyricsText.InsertText(0, self.lyrics['lyrics']['lyrics'])
+                            self.vPanel.noteBook.tab[self.currentTab].lyricsText.InsertText(0, "[%s - %s]\r\r" % (self.lyrics['artist'], self.lyrics['song']))
+                            self.vPanel.noteBook.SetPageText(self.currentTab, "%s - %s" % (self.lyrics['artist'], self.lyrics['song']))
+                            self.statusBar[1] = self.lyrics['artist'] + " - " + self.lyrics['song']
                             self.usedTab[self.currentTab] = True
-                            self.result[self.currentTab] = {'artist': self.lyrics["artist"], 'song': self.lyrics["song"],
-                                                                        'album': self.lyrics["lyrics"]["album"], 'lyrics': self.lyrics["lyrics"]["lyrics"]}
+                            self.result[self.currentTab] = {'artist': self.lyrics['artist'], 'song': self.lyrics['song'],
+                                                                        'album': self.lyrics['lyrics']['album'], 'lyrics': self.lyrics['lyrics']['lyrics']}
     
     def _NewTab(self, movingon = True):
-        """ Create new tab and moves on if precedent tab is used or not. """
+        """ Create a new tab and moves on, if precedent tab is used or not. """
         
         tabNumber = len(self.vPanel.noteBook.tab)
         self.filename.append(None)
@@ -346,17 +336,30 @@ class MainFrame(wax.Frame):
     
     def _SaveFile(self, filename):
         """ Save lyrics in text file """
-        filename = open(filename, 'w')
-        filename.write(self.vPanel.noteBook.tab[0].lyricsText.GetValue().encode('latin-1', 'replace'))
-        filename.close()
+        
+        if not self.result[self.currentTab]['artist']:
+            errorFrame = wax.MessageDialog(self, _("Error"), _("Nothing to save"), ok = 1, icon = "error")
+            errorFrame.ShowModal()
+            errorFrame.Destroy()
+            
+        else:
+            try:
+                filename = open(filename, 'w')
+                filename.write(self.vPanel.noteBook.tab[0].lyricsText.GetValue())
+                filename.close()
+            except Exception, err:
+                print err
+                errorFrame = wax.MessageDialog(self, _("Error"), _("Saving failed"), ok = 1, icon = "error")
+                errorFrame.ShowModal()
+                errorFrame.Destroy()
         
     def _GenerateFilename(self, *args, **kwds):
         """ Genrate filename from a model. """
         
         filename = [config.get("Output", "Model")]
-        filename.append(filename[0].replace('%artist', kwds["artist"]))
-        filename.append(filename[1].replace('%song', kwds["song"]))
-        filename.append(filename[2].replace('%album', kwds["album"]))
+        filename.append(filename[0].replace('%artist', kwds['artist']))
+        filename.append(filename[1].replace('%song', kwds['song']))
+        filename.append(filename[2].replace('%album', kwds['album']))
         
         return filename[-1]
     
@@ -374,7 +377,7 @@ class AboutDialog(wax.CustomDialog):
         programName = wax.Label(self, "wxLyrics %s" % config.get('Program', 'Version'))
         programName.SetFont(('Verdana', 14))
         noteBook = wax.NoteBook(self, size = (400,300))
-        closeButton = wax.Button(self, "Fermer", event = self.OnQuit)
+        closeButton = wax.Button(self, _("Close"), event = self.OnQuit)
         
         # About tab
         aboutTab = wax.Panel(noteBook)
