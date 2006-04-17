@@ -22,6 +22,24 @@ import wax, wx.html
 from wax.tools.choicedialog import ChoiceDialog
 from searchlyrics import SearchLyrics
 
+
+def GenerateHTML(header, content):
+    """ Generate HTML code. """
+    
+    HTML = "<h3 align=\"center\">%s</h3><br><br><span style=\"font-size: 10pt\">%s</span>" % (header, content)
+    
+    return HTML.encode('latin-1', 'replace').replace('\n', '<br>')
+
+def GenerateFilename(*args, **kwds):
+    """ Generate filename from a model. """
+    
+    filename = [config.get("Output", "Model")]
+    filename.append(filename[0].replace('%artist', kwds['artist']))
+    filename.append(filename[1].replace('%song', kwds['song']))
+    filename.append(filename[2].replace('%album', kwds['album']))
+    
+    return filename[-1]
+
 class Printer(wx.html.HtmlEasyPrinting):
     """ Prints HTML code. """
     
@@ -83,8 +101,10 @@ class MainFrame(wax.Frame):
         self.AddComponent(self.vPanel, expand = 'both')
         
         # Window Settings
-        self.SetSize((450, 350))
         self.Pack()
+        self.Size = (450, 350)
+        
+        self.vPanel.noteBook.OnPageChanged  = self.OnTabChange
     
     def CreateMenu(self):
         """ Create menu bar """
@@ -119,6 +139,11 @@ class MainFrame(wax.Frame):
         if quitDialog.ShowModal() == 'yes':
             self.Close(True)
             
+    def OnTabChange(self, event):
+        self.currentTab = event.GetSelection()
+        self.statusBar[0] = str(self.filename[self.currentTab])
+        event.Skip()
+    
     def OnNewTab(self, event = None):
         self._NewTab()
         
@@ -143,7 +168,7 @@ class MainFrame(wax.Frame):
         """ Save lyrics to a file depending on a model. """
         
         try:
-            filePath = self._GenerateFilename(artist = self.result[self.currentTab]['artist'], song = self.result[self.currentTab]['song'],
+            filePath = GenerateFilename(artist = self.result[self.currentTab]['artist'], song = self.result[self.currentTab]['song'],
                          album = self.result[self.currentTab]['album'])
             baseDir = os.path.expanduser(config.get('Output', 'BaseDir'))
             fullPath = os.path.join(baseDir, filePath)
@@ -161,8 +186,7 @@ class MainFrame(wax.Frame):
     def OnPrint(self, event = None):
         """ Print lyrics. """
         
-        self.currentTab = self.vPanel.noteBook.GetSelection()
-        self.lyricsHTML = self._GenerateHTML("%s - %s" % (self.result[self.currentTab]['artist'], self.result[self.currentTab]['song']),
+        self.lyricsHTML = GenerateHTML("%s - %s" % (self.result[self.currentTab]['artist'], self.result[self.currentTab]['song']),
                                  self.result[self.currentTab]['lyrics'])
         
         self.printer = Printer(self)
@@ -191,7 +215,7 @@ class MainFrame(wax.Frame):
         """ Search lyrics and show them. """
         
         self.lyrics = {}
-        
+        print "Recherche: ", self.currentTab
         # Get data from input
         input = self.vPanel.hPanelInput
         artist = input.artistInput.GetValue()
@@ -210,9 +234,8 @@ class MainFrame(wax.Frame):
             self.statusBar[1] = _("Searching")
             
             # Create a tab if needed
-            self.currentTab = self.vPanel.noteBook.GetSelection()
             if self.usedTab[self.currentTab] == True: self._NewTab()
-            
+            print "Recherche 2: ", self.currentTab
             self.vPanel.noteBook.tab[self.currentTab].lyricsText.Clear()
             self.vPanel.noteBook.tab[self.currentTab].lyricsText.InsertText(0, _("Seeking '%s' from %s ...") % (song, artist))
             
@@ -292,7 +315,7 @@ class MainFrame(wax.Frame):
     def _NewTab(self, movingon = True):
         """ Create new tab and moves on, if precedent tab is used or not. """
         
-        tabNumber = len(self.vPanel.noteBook.tab)
+        tabNumber = self.vPanel.noteBook.GetPageCount()
         self.filename.append(None)
         self.usedTab.append(False)
         self.result.append(None)
@@ -306,41 +329,29 @@ class MainFrame(wax.Frame):
         # Move on new tab
         if movingon == True and self.usedTab[self.vPanel.noteBook.GetSelection()] == True:
             self.vPanel.noteBook.SetSelection(tabNumber)
-            self.currentTab = self.vPanel.noteBook.GetSelection()
     
     def _CloseTab(self):
         """ Delete current tab. """
-        
-        currentTab = self.vPanel.noteBook.GetSelection()
         
         if self.vPanel.noteBook.GetPageCount() == 1:
             self.vPanel.noteBook.tab[0].lyricsText.Clear()
             self.vPanel.noteBook.tab[0].lyricsText.InsertText(0, _("Lyrics"))
             self.vPanel.noteBook.SetPageText(0, _("Untitled %s") % 1)
-            self.result[0] = None
-            self.filename[0] = None
-            self.currentTab = 0
+            self.result = [None]
+            self.filename = [None]
         else:
             try:
-                if self.usedTab[currentTab + 1] == True:
-                    self.usedTab[currentTab] = True
+                if self.usedTab[self.currentTab + 1] == True:
+                    self.usedTab[self.currentTab] = True
                 else:
-                    self.usedTab[currentTab] = False
+                    self.usedTab[self.currentTab] = False
             except Exception, err:
-                self.usedTab[currentTab] = False
+                self.usedTab[self.currentTab] = False
                 
-            self.vPanel.noteBook.RemovePage(currentTab)
+            self.vPanel.noteBook.RemovePage(self.currentTab)
             self.result.remove(self.result[self.currentTab])
             self.filename.remove(self.filename[self.currentTab])
-            self.vPanel.noteBook.tab.remove(self.vPanel.noteBook.tab[currentTab])
-            self.currentTab = currentTab - 1
-    
-    def _GenerateHTML(self, header, content):
-        """ Generate HTML code. """
-        
-        HTML = "<h3 align=\"center\">%s</h3><br><br><span style=\"font-size: 10pt\">%s</span>" % (header, content)
-        
-        return HTML.encode('latin-1', 'replace').replace('\n', '<br>')
+            self.vPanel.noteBook.tab.remove(self.vPanel.noteBook.tab[self.currentTab])
     
     def _SaveFile(self, filename):
         """ Save lyrics in text file """
@@ -360,16 +371,6 @@ class MainFrame(wax.Frame):
                 errorFrame = wax.MessageDialog(self, _("Error"), _("Saving failed"), ok = 1, icon = "error")
                 errorFrame.ShowModal()
                 errorFrame.Destroy()
-        
-    def _GenerateFilename(self, *args, **kwds):
-        """ Genrate filename from a model. """
-        
-        filename = [config.get("Output", "Model")]
-        filename.append(filename[0].replace('%artist', kwds['artist']))
-        filename.append(filename[1].replace('%song', kwds['song']))
-        filename.append(filename[2].replace('%album', kwds['album']))
-        
-        return filename[-1]
     
     def SetFilename(self, filename):
         self.filename[self.currentTab] = filename
@@ -379,11 +380,11 @@ class PreferencesDialog(wax.CustomDialog):
     """ Create Preferences window. """
     
     def Body(self):
-        gPanel = wax.GridPanel(self, rows = 3, cols = 2, hgap = 0, vgap = 0)
+        gPanel = wax.GridPanel(self, rows = 3, cols = 2, hgap = 0, vgap = 5)
         
-        self.baseDir = wax.TextBox(gPanel, Value = config.get('Output', 'BaseDir'))
+        self.baseDir = wax.TextBox(gPanel, Value = os.path.expanduser(config.get('Output', 'BaseDir')))
         self.fileModel = wax.TextBox(gPanel, Value = config.get('Output', 'Model'))
-        self.fileExample = wax.Label(gPanel, "Manau/Fest Noz De Paname/Manau - Dafunkamanu.txt")
+        self.fileExample = wax.Label(gPanel, GenerateFilename(artist = 'Manau', song = 'Dafunkamanu', album = 'Fest Noz De Paname'))
         
         gPanel.AddComponent(0, 0, wax.Label(gPanel, _("Output directory")))
         gPanel.AddComponent(0, 1, wax.Label(gPanel, _("File model")))
@@ -396,11 +397,19 @@ class PreferencesDialog(wax.CustomDialog):
         self.AddComponent(wax.Label(self, _("Global preferences")))
         self.AddComponent(gPanel, expand = 'both', border = 10)
         self.AddComponent(wax.Button(self, _("Close"), event = self.OnQuit), border = 3, align = 'center')
+        self.AddComponent(wax.Button(self, _("Ok"), event = self.OnOk), border = 3, align = 'center')
+        self.AddComponent(wax.Button(self, _("Obort"), event = self.OnAbort), border = 3, align = 'center')
         self.Pack()
-        self.Size = 300, 200
+        self.Size = (400, 200)
         
     def OnQuit(self, event = None):
         self.Close()
+    
+    def OnQuit(self, event = None):
+        print "Save config"
+        
+    def OnAbort(self, event = None):
+        print "Aborting"
         
 class AboutDialog(wax.CustomDialog):
     """ Create About window. """
@@ -412,7 +421,6 @@ class AboutDialog(wax.CustomDialog):
         programName = wax.Label(self, "wxLyrics %s" % config.get('Program', 'Version'))
         programName.SetFont(('Verdana', 14))
         noteBook = wax.NoteBook(self, size = (400,300))
-        closeButton = wax.Button(self, _("Close"), event = self.OnQuit)
         
         # About tab
         aboutTab = wax.Panel(noteBook)
@@ -451,7 +459,7 @@ class AboutDialog(wax.CustomDialog):
         self.AddComponent(programName)
         self.AddSpace(10)
         self.AddComponent(noteBook, expand = 'both')
-        self.AddComponent(closeButton, border = 3, align = 'center')
+        self.AddComponent(wax.Button(self, _("Close"), event = self.OnQuit), border = 3, align = 'center')
         self.Pack()
     
     def OnQuit(self, event = None):
