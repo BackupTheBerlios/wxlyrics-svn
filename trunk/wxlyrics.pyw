@@ -32,8 +32,11 @@ def GenerateHTML(header, content):
 
 def GenerateFilename(*args, **kwds):
     """ Generate filename from a model. """
-    
-    filename = [config.get("Output", "Model")]
+    try:
+        filename = [kwds["model"]]
+    except Exception, err:
+        filename = [config.get("Output", "Model")]
+        
     filename.append(filename[0].replace('%artist', kwds['artist']))
     filename.append(filename[1].replace('%song', kwds['song']))
     filename.append(filename[2].replace('%album', kwds['album']))
@@ -139,16 +142,19 @@ class MainFrame(wax.Frame):
         if quitDialog.ShowModal() == 'yes':
             self.Close(True)
             
-    def OnTabChange(self, event):
+    def OnTabChange(self, event = None):
         self.currentTab = event.GetSelection()
-        self.statusBar[0] = str(self.filename[self.currentTab])
+        print "tab: ", self.currentTab
+        self.SetFilename(self.filename[self.currentTab])
         event.Skip()
     
     def OnNewTab(self, event = None):
         self._NewTab()
         
     def OnCloseTab(self, event = None):
+        print "avant: ", self.currentTab
         self._CloseTab()
+        print "apres: ", self.currentTab
         
     def OnSaveAs(self, event = None):
         """ Save lyrics in a text file. """
@@ -352,6 +358,7 @@ class MainFrame(wax.Frame):
             self.result.remove(self.result[self.currentTab])
             self.filename.remove(self.filename[self.currentTab])
             self.vPanel.noteBook.tab.remove(self.vPanel.noteBook.tab[self.currentTab])
+            self.currentTab = self.vPanel.noteBook.GetSelection()
     
     def _SaveFile(self, filename):
         """ Save lyrics in text file """
@@ -380,11 +387,16 @@ class PreferencesDialog(wax.CustomDialog):
     """ Create Preferences window. """
     
     def Body(self):
-        gPanel = wax.GridPanel(self, rows = 3, cols = 2, hgap = 0, vgap = 5)
+        # Main Panel
+        mainPanel = wax.VerticalPanel(self)
+        
+        # Options
+        gPanel = wax.GridPanel(mainPanel, rows = 3, cols = 2, hgap = 0, vgap = 5)
         
         self.baseDir = wax.TextBox(gPanel, Value = os.path.expanduser(config.get('Output', 'BaseDir')))
         self.fileModel = wax.TextBox(gPanel, Value = config.get('Output', 'Model'))
-        self.fileExample = wax.Label(gPanel, GenerateFilename(artist = 'Manau', song = 'Dafunkamanu', album = 'Fest Noz De Paname'))
+        self.fileModel.OnChar = self._RegenerateExample
+        self.fileExample = wax.Label(gPanel, GenerateFilename(artist = 'Simple Plan', song = 'Thank You', album = 'Still Not Getting Any'))
         
         gPanel.AddComponent(0, 0, wax.Label(gPanel, _("Output directory")))
         gPanel.AddComponent(0, 1, wax.Label(gPanel, _("File model")))
@@ -394,22 +406,32 @@ class PreferencesDialog(wax.CustomDialog):
         gPanel.AddComponent(1, 2, self.fileExample)
         gPanel.Pack()
         
-        self.AddComponent(wax.Label(self, _("Global preferences")))
-        self.AddComponent(gPanel, expand = 'both', border = 10)
-        self.AddComponent(wax.Button(self, _("Close"), event = self.OnQuit), border = 3, align = 'center')
-        self.AddComponent(wax.Button(self, _("Ok"), event = self.OnOk), border = 3, align = 'center')
-        self.AddComponent(wax.Button(self, _("Obort"), event = self.OnAbort), border = 3, align = 'center')
+        # Buttons
+        vPanel = wax.HorizontalPanel(mainPanel)
+        vPanel.AddComponent(wax.Button(vPanel, _("Ok"), event = self.OnOk), border = 3, align = 'center')
+        vPanel.AddComponent(wax.Button(vPanel, _("Abort"), event = self.OnQuit), border = 3, align = 'center')
+        vPanel.Pack()
+     
+        mainPanel.AddComponent(wax.Label(mainPanel, _("Global preferences")), border = 10, align = 'center')
+        mainPanel.AddComponent(gPanel, border = 10)
+        mainPanel.AddComponent(vPanel, border = 10, align = 'center')
+        mainPanel.Pack()
+        
+        self.AddComponent(mainPanel, expand = 'both', border = 10)
         self.Pack()
-        self.Size = (400, 200)
         
     def OnQuit(self, event = None):
         self.Close()
     
-    def OnQuit(self, event = None):
-        print "Save config"
+    def OnOk(self, event = None):
+        """ Save and close. """
+        config.set('Output', 'BaseDir', self.baseDir.GetValue())
+        config.set('Output', 'Model', self.fileModel.GetValue())
+        self.Close()
         
-    def OnAbort(self, event = None):
-        print "Aborting"
+    def _RegenerateExample(self, event = None):
+        self.fileExample.SetLabel(GenerateFilename(model = self.fileModel.GetValue(), artist = 'Simple Plan', song = 'Thank You', album = 'Still Not Getting Any'))
+        event.Skip()
         
 class AboutDialog(wax.CustomDialog):
     """ Create About window. """
@@ -469,7 +491,7 @@ if __name__ == "__main__":
     # Configuration file
     configFile = os.path.join(os.path.abspath('wxlyrics.cfg'))
     config = ConfigParser.ConfigParser()
-    config.readfp(open(configFile, 'r'))
+    config.readfp(open(configFile, 'w'))
     
     # Gettext init
     gettext.bindtextdomain('wxlyrics')
