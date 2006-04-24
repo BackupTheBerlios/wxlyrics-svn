@@ -32,10 +32,11 @@ def GenerateHTML(header, content):
 
 def GenerateFilename(*args, **kwds):
     """ Generate filename from a model. """
-    try:
-        filename = [kwds["model"]]
-    except Exception, err:
-        filename = [config.get("Output", "Model")]
+    
+    if kwds.has_key('model'):
+        filename = [kwds['model']]
+    else:
+        filename = [config.get('Output', 'Model')]
         
     filename.append(filename[0].replace('%artist', kwds['artist']))
     filename.append(filename[1].replace('%song', kwds['song']))
@@ -220,7 +221,6 @@ class MainFrame(wax.Frame):
         """ Search lyrics and show them. """
         
         self.lyrics = {}
-        print "Recherche: ", self.currentTab
         # Get data from input
         input = self.hPanelInput
         artist = input.artistInput.GetValue()
@@ -240,7 +240,6 @@ class MainFrame(wax.Frame):
             
             # Create a tab if needed
             if self.usedTab[self.currentTab] == True: self._NewTab()
-            print "Recherche 2: ", self.currentTab
             self.noteBook.tab[self.currentTab].lyricsText.Clear()
             self.noteBook.tab[self.currentTab].lyricsText.InsertText(0, _("Seeking '%s' from %s ...") % (song, artist))
             
@@ -270,14 +269,12 @@ class MainFrame(wax.Frame):
                     if len(result['songlist'].values()) == 1:
                         songSelected = result['songlist'][0]
                     else:
-                        i = 0
-                        choices = {}
+                        choices = []
                         
                         for results in result['songlist'].values():
-                            choices[i] = "%s - %s"  % (results[1], results[0])
-                            i += 1
+                            choices.append("%s - %s"  % (results[1], results[0]))
                             
-                        choiceDialog = ChoiceDialog(self, choices = choices.values(), prompt = _("Make your choice"), title = _("Results"), size = (300, 200))
+                        choiceDialog = ChoiceDialog(self, choices = choices, prompt = _("Make your choice"), title = _("Results"), size = (300, 200))
                         if choiceDialog.ShowModal() == 'ok':
                             songSelected = result['songlist'][choiceDialog.choice]
                         
@@ -373,7 +370,6 @@ class MainFrame(wax.Frame):
                 filename.write(self.noteBook.tab[self.currentTab].lyricsText.GetValue().encode('latin-1', 'replace'))
                 filename.close()
             except Exception, err:
-                print err
                 errorFrame = wax.MessageDialog(self, _("Error"), _("Saving failed"), ok = 1, icon = "error")
                 errorFrame.ShowModal()
                 errorFrame.Destroy()
@@ -488,11 +484,32 @@ class AboutDialog(wax.CustomDialog):
         self.Close()
         
 if __name__ == "__main__":
-    # Configuration file
-    configFile = os.path.join(os.path.abspath('wxlyrics.cfg'))
-    config = ConfigParser.ConfigParser()
-    config.readfp(open(configFile, 'r'))
     
+    # Configuration file
+    try:
+        configFile = os.path.join(os.path.abspath('wxlyrics.cfg'))
+        config = ConfigParser.ConfigParser()
+        config.readfp(open(configFile, 'r'))
+    except Exception, err:
+        configFile = open(os.path.join(os.path.abspath('wxlyrics.cfg')), 'w')
+        configFile.write("""
+[Program]
+
+name = wxLyrics
+version = 0.1.4.24
+
+[Author]
+name = Vlad
+mail = ze.vlad@gmail.com
+
+[Output]
+basedir = ~/lyrics/
+model = %artist/%album/%artist - %song.txt""")
+        configFile.close()
+        configFile = os.path.join(os.path.abspath('wxlyrics.cfg'))
+        config = ConfigParser.ConfigParser()
+        config.readfp(open(configFile, 'r'))
+        
     # Gettext init
     gettext.bindtextdomain('wxlyrics')
     locale.setlocale(locale.LC_ALL, '')

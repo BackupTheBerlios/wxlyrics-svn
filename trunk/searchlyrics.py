@@ -6,6 +6,7 @@
 # published by the Free Software Foundation.
 #
 
+import sys
 import urllib
 from xml.dom import minidom
 
@@ -17,7 +18,7 @@ class SearchLyrics:
         
         result = {}
         
-        # Open a socket and analyse xml file to see results
+        # Open a socket and analyse XML file to see results
         try:
             resultSock = urllib.urlopen('http://api.leoslyrics.com/api_search.php?auth=wxLyrics&artist=%s&songtitle=%s' %
                                         (urllib.quote(artist.encode('utf-8')), urllib.quote(song.encode('utf-8'))))
@@ -37,9 +38,6 @@ class SearchLyrics:
             songTitle = map(lambda x: x.firstChild.nodeValue, songTitleDom)
             artistNameDom = resultDoc.getElementsByTagName('name')[:20]
             artistName = map(lambda x: x.firstChild.nodeValue, artistNameDom)
-            
-            if len(hid) == 0:
-                text = _("No lyrics found for this song")
             
             songList = {}
             i = 0
