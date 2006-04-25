@@ -18,6 +18,7 @@
 
 import sys, os
 import locale, gettext, ConfigParser
+import traceback
 import wax, wx.html
 from wax.tools.choicedialog import ChoiceDialog
 from searchlyrics import SearchLyrics
@@ -57,6 +58,7 @@ class Printer(wx.html.HtmlEasyPrinting):
 class MainFrame(wax.Frame):
     """ Main window with menu, status bar and notebook (tabs) for lyrics. """
     def Body(self):
+        self.error = None
         self.result = [None]
         self.filename = [None]
         
@@ -67,6 +69,7 @@ class MainFrame(wax.Frame):
         # Create menu and body
         self.CreateMenu()
         self.CreateBody()
+        self.SetIcon('wxlyrics.ico')
         
     def CreateBody(self):
         """ Contenu de la frame """
@@ -250,15 +253,13 @@ class MainFrame(wax.Frame):
             self.noteBook.tab[self.currentTab].lyricsText.Clear()
             
             # Detect errors
-            try: self.error = result['error']
-            except Exception, err: self.error = False
-            
-            if self.error != False:
+            if result.has_key('error'):
+                self.error = result['error']
                 errorFrame = wax.MessageDialog(self, _("Error"), self.error, ok = 1, icon = "error")
                 errorFrame.ShowModal()
                 errorFrame.Destroy()
             else:
-                if len(result['songlist'].values()) == 0:
+                if len(result['songlist']) == 0:
                     self.noteBook.tab[self.currentTab].lyricsText.InsertText(0, _("No correspondence found"))
                     self.statusBar[1] = _("No correspondence found")
                     
@@ -296,14 +297,12 @@ class MainFrame(wax.Frame):
                         self.lyrics['lyrics'] = search.ShowLyrics(self.lyrics['hid'])
                      
                         # Detect errors
-                        try: self.error = self.lyrics['lyrics']['error']
-                        except Exception, err: self.error = False
-                        
-                        if self.error != False:
-                            errorFrame = wax.MessageDialog(self, _("Error"), self.lyrics['lyrics']['error'], ok = 1, icon = "error")
+                        if self.lyrics['lyrics'].has_key('error'):
+                            self.error = self.lyrics['lyrics']['error']
+                            errorFrame = wax.MessageDialog(self, _("Error"), self.error, ok = 1, icon = "error")
                             errorFrame.ShowModal()
                             errorFrame.Destroy()
-                            self.statusBar[1] = self.lyrics['lyrics']['error']
+                            self.statusBar[1] = self.error
                         else:
                             self.noteBook.tab[self.currentTab].lyricsText.Clear()
                             self.noteBook.tab[self.currentTab].lyricsText.InsertText(0, self.lyrics['lyrics']['lyrics'])
@@ -484,6 +483,10 @@ class AboutDialog(wax.CustomDialog):
         self.Close()
         
 if __name__ == "__main__":
+    
+    # Log error
+    errorFile = open('error.log', 'w')
+    sys.stderr = errorFile
     
     # Configuration file
     try:

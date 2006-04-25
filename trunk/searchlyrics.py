@@ -27,6 +27,7 @@ class SearchLyrics:
             resultCode = resultDoc.getElementsByTagName('response')[0].getAttribute('code')
         
         except Exception, err:
+            sys.stderr.write("Cannot reach host")
             result["error"] = _("Cannot reach host")
             resultCode = 1
         
@@ -71,6 +72,8 @@ class SearchLyrics:
             
         except Exception, err:
             try: result["error"] = err.strerror.decode(locale.getpreferredencoding())
-            except: result["error"] = _("Attempt to download lyrics failed")
+            except:
+                sys.stderr.write("Attempt to download lyrics failed")
+                result["error"] = _("Attempt to download lyrics failed")
         
         return result
