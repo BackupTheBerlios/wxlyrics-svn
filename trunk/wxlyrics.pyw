@@ -18,7 +18,6 @@
 
 import sys, os
 import locale, gettext, ConfigParser
-import traceback
 import wax, wx.html
 from wax.tools.choicedialog import ChoiceDialog
 from searchlyrics import SearchLyrics
