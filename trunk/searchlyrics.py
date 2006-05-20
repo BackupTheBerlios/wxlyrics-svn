@@ -1,10 +1,14 @@
 # SearchLyrics class
+#
 # Copyright 2006 Vladimir Svoboda
+#
+# This file is a part of wxLyrics
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of version 2 of the GNU General Public License as
 # published by the Free Software Foundation.
 #
+# $Id$
 
 import sys
 import urllib
@@ -27,17 +31,18 @@ class SearchLyrics:
             resultCode = resultDoc.getElementsByTagName('response')[0].getAttribute('code')
         
         except Exception, err:
-            sys.stderr.write("Cannot reach host")
+            sys.stderr.write("Cannot reach host: ", err)
+            print err
             result["error"] = _("Cannot reach host")
             resultCode = 1
         
         if resultCode == '0':
             # Create list from result
-            matches = resultDoc.getElementsByTagName('result')[:20]
+            matches = resultDoc.getElementsByTagName('result')[:50]
             hid = map(lambda x: x.getAttribute('hid'), matches)
-            songTitleDom = resultDoc.getElementsByTagName('title')[:20]
+            songTitleDom = resultDoc.getElementsByTagName('title')[:50]
             songTitle = map(lambda x: x.firstChild.nodeValue, songTitleDom)
-            artistNameDom = resultDoc.getElementsByTagName('name')[:20]
+            artistNameDom = resultDoc.getElementsByTagName('name')[:50]
             artistName = map(lambda x: x.firstChild.nodeValue, artistNameDom)
             
             songList = {}

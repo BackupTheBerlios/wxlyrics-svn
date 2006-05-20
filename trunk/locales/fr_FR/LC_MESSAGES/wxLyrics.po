@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: wxLyrics\n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2006-04-22 20:50+0100\n"
+"PO-Revision-Date: 2006-04-28 22:09+0100\n"
 "Last-Translator: Svoboda Vladimir\n"
 "Language-Team: ZeVlad <ze.vlad@gmail.com>\n"
 "MIME-Version: 1.0\n"
@@ -14,123 +14,119 @@ msgstr ""
 "X-Poedit-Basepath: /python/wxlyrics/\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 
-#: ../searchlyrics.py:29
+#: ../searchlyrics.py:31
 msgid "Cannot reach host"
 msgstr "Ne peut joindre l'hôte"
 
-#: ../searchlyrics.py:42
-msgid "No lyrics found for this song"
-msgstr "Aucune paroles trouvées pour cette chanson"
-
-#: ../searchlyrics.py:69
+#: ../searchlyrics.py:68
 msgid "Unknow Album"
 msgstr "Album Inconnu"
 
-#: ../searchlyrics.py:76
+#: ../searchlyrics.py:77
 msgid "Attempt to download lyrics failed"
 msgstr "La tentative de téléchargement a échouée"
 
-#: ../wxlyrics.pyw:79
+#: ../wxlyrics.pyw:82
 msgid "Artist"
 msgstr "Artiste"
 
-#: ../wxlyrics.pyw:80
+#: ../wxlyrics.pyw:83
 msgid "Song title"
 msgstr "Titre"
 
-#: ../wxlyrics.pyw:81
+#: ../wxlyrics.pyw:84
 msgid "Search"
 msgstr "Chercher"
 
-#: ../wxlyrics.pyw:95
-#: ../wxlyrics.pyw:329
-#: ../wxlyrics.pyw:344
+#: ../wxlyrics.pyw:98
+#: ../wxlyrics.pyw:323
+#: ../wxlyrics.pyw:338
 msgid "Lyrics"
 msgstr "Paroles"
 
-#: ../wxlyrics.pyw:97
-#: ../wxlyrics.pyw:332
-#: ../wxlyrics.pyw:345
+#: ../wxlyrics.pyw:100
+#: ../wxlyrics.pyw:326
+#: ../wxlyrics.pyw:339
 msgid "Untitled %s"
 msgstr "Sans titre %s"
 
-#: ../wxlyrics.pyw:117
+#: ../wxlyrics.pyw:120
 msgid "Open new &tab"
 msgstr "Ouvrir un nouvel ongle&t"
 
-#: ../wxlyrics.pyw:118
+#: ../wxlyrics.pyw:121
 msgid "&Close tab"
 msgstr "Fermer l'onglet"
 
-#: ../wxlyrics.pyw:120
+#: ../wxlyrics.pyw:123
 msgid "&Save as"
 msgstr "Enregistrer &sous..."
 
-#: ../wxlyrics.pyw:121
+#: ../wxlyrics.pyw:124
 msgid "&Auto save"
 msgstr "Enregistrement &automatique"
 
-#: ../wxlyrics.pyw:123
+#: ../wxlyrics.pyw:126
 msgid "&Print"
 msgstr "Im&primer"
 
-#: ../wxlyrics.pyw:125
+#: ../wxlyrics.pyw:128
 msgid "E&xit"
 msgstr "&Quitter"
 
-#: ../wxlyrics.pyw:128
+#: ../wxlyrics.pyw:131
 msgid "&Preferences"
 msgstr "&Préférences"
 
-#: ../wxlyrics.pyw:131
+#: ../wxlyrics.pyw:134
 msgid "&Help"
 msgstr "&Aide"
 
-#: ../wxlyrics.pyw:133
+#: ../wxlyrics.pyw:136
 msgid "&About wxLyrics"
 msgstr "A &propos de wxLyrics"
 
-#: ../wxlyrics.pyw:135
+#: ../wxlyrics.pyw:138
 msgid "&File"
 msgstr "&Fichier"
 
-#: ../wxlyrics.pyw:136
+#: ../wxlyrics.pyw:139
 msgid "&Edit"
 msgstr "&Éditer"
 
-#: ../wxlyrics.pyw:141
+#: ../wxlyrics.pyw:144
 msgid "Do you really want to quit wxLyrics"
 msgstr "Souhaitez-vous vraiment quitter wxLyrics ?"
 
-#: ../wxlyrics.pyw:203
+#: ../wxlyrics.pyw:205
 msgid "Preferences"
 msgstr "Préférences"
 
-#: ../wxlyrics.pyw:209
+#: ../wxlyrics.pyw:211
 msgid "About wxLyrics"
 msgstr "A propos de wxLyrics"
 
-#: ../wxlyrics.pyw:215
+#: ../wxlyrics.pyw:217
 msgid "Fill the fields 'artist' and 'song title'. You will receive a list of song"
 msgstr "Complètez les champs 'artiste' et 'titre'. Vous recevrez alors une liste de chanson"
 
-#: ../wxlyrics.pyw:216
+#: ../wxlyrics.pyw:218
 msgid "Help"
 msgstr "Aide"
 
-#: ../wxlyrics.pyw:233
+#: ../wxlyrics.pyw:234
 msgid "Fill required fields"
 msgstr "Complétez les champs requis"
 
-#: ../wxlyrics.pyw:233
-#: ../wxlyrics.pyw:259
-#: ../wxlyrics.pyw:307
-#: ../wxlyrics.pyw:367
-#: ../wxlyrics.pyw:378
+#: ../wxlyrics.pyw:234
+#: ../wxlyrics.pyw:257
+#: ../wxlyrics.pyw:301
+#: ../wxlyrics.pyw:361
+#: ../wxlyrics.pyw:371
 msgid "Error"
 msgstr "Erreur"
 
-#: ../wxlyrics.pyw:240
+#: ../wxlyrics.pyw:241
 msgid "Searching"
 msgstr "Recherche en cours"
 
@@ -138,84 +134,88 @@ msgstr "Recherche en cours"
 msgid "Seeking '%s' from %s ..."
 msgstr "Recherche '%s' de %s ..."
 
-#: ../wxlyrics.pyw:264
-#: ../wxlyrics.pyw:265
+#: ../wxlyrics.pyw:262
+#: ../wxlyrics.pyw:263
 msgid "No correspondence found"
 msgstr "Aucune correspondance trouvée"
 
-#: ../wxlyrics.pyw:281
+#: ../wxlyrics.pyw:277
 msgid "Make your choice"
 msgstr "Faites votre choix"
 
-#: ../wxlyrics.pyw:281
+#: ../wxlyrics.pyw:277
 msgid "Results"
 msgstr "Résultats"
 
-#: ../wxlyrics.pyw:289
+#: ../wxlyrics.pyw:285
 msgid "No results"
 msgstr "Pas de résultats"
 
-#: ../wxlyrics.pyw:298
+#: ../wxlyrics.pyw:294
 msgid "Downloading '%s' ..."
 msgstr "Téléchargement de '%s' ..."
 
-#: ../wxlyrics.pyw:367
+#: ../wxlyrics.pyw:361
 msgid "Nothing to save"
 msgstr "Il n'a rien à sauvegarder"
 
-#: ../wxlyrics.pyw:378
+#: ../wxlyrics.pyw:371
 msgid "Saving failed"
 msgstr "Échec à l'enregistrement"
 
-#: ../wxlyrics.pyw:401
-msgid "Output directory: "
-msgstr "Répertoire de destination:"
+#: ../wxlyrics.pyw:394
+msgid "Output directory"
+msgstr "Répertoire de destination"
 
-#: ../wxlyrics.pyw:402
-msgid "File model: "
-msgstr "Modèle de fichier:"
+#: ../wxlyrics.pyw:395
+msgid "File model"
+msgstr "Modèle de fichier"
 
-#: ../wxlyrics.pyw:403
-msgid "Example: "
-msgstr "Exemple:"
+#: ../wxlyrics.pyw:396
+msgid "Example"
+msgstr "Exemple"
 
-#: ../wxlyrics.pyw:411
+#: ../wxlyrics.pyw:400
+msgid "Browse"
+msgstr "Explorer"
+
+#: ../wxlyrics.pyw:407
 msgid "Ok"
 msgstr "OK"
 
-#: ../wxlyrics.pyw:412
+#: ../wxlyrics.pyw:408
 msgid "Abort"
 msgstr "Annuler"
 
-#: ../wxlyrics.pyw:415
+#: ../wxlyrics.pyw:411
 msgid "Global preferences"
 msgstr "Configuration globale"
 
-#: ../wxlyrics.pyw:452
+#: ../wxlyrics.pyw:456
 msgid "wxLyrics - A simple lyrics viewer"
 msgstr "wxLyrics - Visionneuse de paroles"
 
-#: ../wxlyrics.pyw:455
+#: ../wxlyrics.pyw:459
 msgid "Lyrics provided by %s"
 msgstr "Paroles fournies par %s"
 
-#: ../wxlyrics.pyw:460
+#: ../wxlyrics.pyw:464
 msgid "About"
 msgstr "A propos"
 
-#: ../wxlyrics.pyw:469
+#: ../wxlyrics.pyw:473
 msgid "License"
 msgstr "Licence"
 
-#: ../wxlyrics.pyw:474
+#: ../wxlyrics.pyw:478
 msgid "System: %s"
 msgstr "Système: %s"
 
-#: ../wxlyrics.pyw:480
+#: ../wxlyrics.pyw:484
 msgid "Informations"
 msgstr "Informations"
 
-#: ../wxlyrics.pyw:486
+#: ../wxlyrics.pyw:490
 msgid "Close"
 msgstr "Fermer"
 
