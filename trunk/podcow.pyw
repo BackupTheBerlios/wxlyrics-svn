@@ -129,11 +129,7 @@ class MainFrame(Frame):
             result = search.SearchLyrics(artist, song)
             
             if result.has_key('error'):
-                error = result['error']
-                errorFrame = MessageDialog(self, _("Error"), error, ok = 1,
-                                           icon = "error")
-                errorFrame.ShowModal()
-                errorFrame.Destroy()
+                self.output.InsertText(0, _("ERROR: ") % result['error'])
             else:
                 if len(result['songlist']) == 0:
                     self.output.InsertText(0, _("No result for %s - %s\r") % (artist, song))
@@ -163,21 +159,19 @@ class MainFrame(Frame):
                         lyrics['artist'] = songSelected[0]
                         lyrics['song'] = songSelected[1]
                         lyrics['hid'] = songSelected[2]
-                        
                         lyrics['lyrics'] = search.ShowLyrics(lyrics['hid'])
                      
                         # Detect errors
                         if lyrics['lyrics'].has_key('error'):
                             self.output.InsertText(0, _("Lyrics found but NOT added for %s - %s") % (artist, song))
-                            error = lyrics['lyrics']['error']
-                            errorFrame = MessageDialog(self, _("Error"), error, ok = 1, icon = "error")
-                            errorFrame.ShowModal()
-                            errorFrame.Destroy()
+                            self.output.InsertText(0, _("ERROR: ") % lyrics['lyrics']['error'])
                         else:
                             audio.add(USLT(encoding=3, desc='', lang=u'eng',
                             text=lyrics['lyrics']['lyrics']))
                             audio.save()
                             self.output.InsertText(0, _("Lyrics found and added for %s - %s\r") % (artist, song))
+                            if (len(lyrics['lyrics']['lyrics'])) <= 1000:
+                                print "%s - %s (len: %s)" % (artist, song, len(str(lyrics['lyrics']['lyrics'])))
                             added += 1
                             self.statusBar[2] = _("Tags added: %s") % added
                             lyrics['lyrics']['lyrics'] = None
@@ -197,8 +191,8 @@ class MainFrame(Frame):
     def OnHelp(self, event=None):
         """ Help dialog. """
         
-        helpMessage = _("Fill the fields 'artist' and 'song title'.\
-                        You will receive a list of song")
+        helpMessage = _("Fill the fields 'artist' and 'song title'."
+                        "You will receive a list of song")
         helpFrame = MessageDialog(self, _("Help"), helpMessage, ok = 1,
                                       icon = "information")
         helpFrame.ShowModal()
@@ -272,7 +266,7 @@ basedir = ~/lyrics/
 model = %artist/%album/%artist - %song.txt
 
 [MusicRoot]
-directory = G:\Documents\Ma musique
+directory = ~/
 """)
         configFile.close()
         configFile = os.path.join(os.path.abspath('musicalcow.cfg'))

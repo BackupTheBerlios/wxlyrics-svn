@@ -544,7 +544,7 @@ basedir = ~/lyrics/
 model = %artist/%album/%artist - %song.txt
 
 [MusicRoot]
-directory = G:\Documents\Ma musique
+directory = ~/
 """)
         configFile.close()
         configFile = os.path.join(os.path.abspath('musicalcow.cfg'))

@@ -23,10 +23,10 @@ class Target:
     def __init__(self, **kw):
         self.__dict__.update(kw)
         # for the versioninfo resources
-        self.version = '0.1.4.25'
+        self.version = '0.1.0522'
         self.company_name = 'ZeVlad'
         self.copyright = '2006 - Vladimir Svoboda'
-        self.name = 'wxLyrics'
+        self.name = 'The Lyricist Cow'
 
 ################################################################
 # A program using wxPython
@@ -35,7 +35,7 @@ class Target:
 # gives the controls the Windows XP appearance (if run on XP ;-)
 #
 # Another option would be to store it in a file named
-# wxlyrics.exe.manifest, and copy it with the data_files option into
+# lyricistcow.exe.manifest, and copy it with the data_files option into
 # the dist-dir.
 #
 manifest_template = '''
@@ -70,15 +70,15 @@ wxlyrics = Target(
     description = 'A simple lyrics viewer',
 
     # what to build
-    script = 'wxlyrics.pyw',
-    other_resources = [(RT_MANIFEST, 1, manifest_template % dict(prog = 'wxlyrics'))],
+    script = 'lyricistcow.pyw',
+    other_resources = [(RT_MANIFEST, 1, manifest_template % dict(prog = 'lyricistcow'))],
     icon_resources = [(1, 'wxlyrics-2.ico')],
-    dest_base = 'wxlyrics')
+    dest_base = 'lyricistcow')
 
 ################################################################
 
 setup(
-    url = 'https://developer.berlios.de/projects/wxlyrics/',
+    url = 'https://developer.berlios.de/projects/musical-cow/',
     description = 'Download and display lyrics',
     license = 'GNU GPL v2',
     options = {'py2exe': {
@@ -88,5 +88,5 @@ setup(
                         'packages': ['encodings'],
                         'dist_dir': 'C:\wxLyrics'}},
     zipfile = None,
-    data_files = [('.',['COPYING' , 'AUTHORS', 'TODO', 'wxlyrics.cfg', 'wxlyrics.ico'])],
+    data_files = [('.',['COPYING' , 'AUTHORS', 'TODO', 'musicalcow.cfg', 'wxlyrics.ico'])],
     windows = [wxlyrics])

@@ -4,7 +4,7 @@ from mutagen.id3 import ID3, USLT
 #file = "/mnt/data/Documents/Ma musique/The Rasmus/Hide From The Sun/10 - Heart Of Misery.mp3"
 #file = "G:\Documents\Ma musique\Simple Plan\No Pads, No Helmets ... Just Balls\\01 - I'd Do Anything.mp3"
 #file = "G:\Documents\Ma musique\Avril Lavigne\Let Go\\06 - Unwanted.mp3"
-file = "G:\Documents\Ma musique\Linkin Park\Meteora\\05 - Hit The Floor.mp3"
+file = "G:\Documents\Ma musique\Sum 41\Go Chuck Yourself\\07 - There's No Solution.mp3"
 #file = "/mnt/data/Documents/Ma musique/Sum 41/Go Chuck Yourself/20 - Fat Lip.mp3"
 audio = MP3(file)
 
@@ -17,7 +17,6 @@ for items in audio:
         i += 1
         
 print "-----------"
-print "bouh: ", match
 audio = ID3(file)
 
 if match is not None:
