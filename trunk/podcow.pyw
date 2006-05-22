@@ -3,11 +3,11 @@
 # -*- coding: utf-8 -*-
 #
 
-# LyricsTagger
+# podCow
 #
 # Copyright 2006 Vladimir Svoboda
 #
-# This file is a part of wxLyrics
+# This file is a part of The Musical Cow suite
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of version 2 of the GNU General Public License as
@@ -34,7 +34,7 @@ class MainFrame(Frame):
     """ Main window with menu, status bar and notebook (tabs) for lyrics. """
     
     def Body(self):
-        self.error = None
+        error = None
         self.result = [None]
         self.filename = [None]
         
@@ -91,7 +91,7 @@ class MainFrame(Frame):
         helpMenu = Menu(self)
         helpMenu.Append(_("&Help"), self.OnHelp, hotkey = "F1")
         helpMenu.AppendSeparator()
-        helpMenu.Append(_("&About lyricsTagger"), self.OnAbout)
+        helpMenu.Append(_("&About podCow"), self.OnAbout)
         
         menuBar.Append(fileMenu, _("&File"))
         menuBar.Append(helpMenu, "&?")
@@ -116,7 +116,7 @@ class MainFrame(Frame):
         self.statusBar[2] = _("Tags added: %s") % 0
         
         for i in range(self.mTags):
-            self.lyrics = {}
+            lyrics = {}
             songSelected = {}
             
             audio = ID3(self.fileList[i][0])
@@ -129,8 +129,8 @@ class MainFrame(Frame):
             result = search.SearchLyrics(artist, song)
             
             if result.has_key('error'):
-                self.error = result['error']
-                errorFrame = MessageDialog(self, _("Error"), self.error, ok = 1,
+                error = result['error']
+                errorFrame = MessageDialog(self, _("Error"), error, ok = 1,
                                            icon = "error")
                 errorFrame.ShowModal()
                 errorFrame.Destroy()
@@ -156,32 +156,31 @@ class MainFrame(Frame):
                         choiceDialog.Destroy()
                         
                     if len(songSelected) != 3:
-                        self.lyrics['error'] = _("No results")
+                        lyrics['error'] = _("No results")
                         self.output.InsertText(0, _("No result for %s - %s\r") % (artist, song))
                     else:
                         # Download lyrics
-                        self.lyrics['artist'] = songSelected[0]
-                        self.lyrics['song'] = songSelected[1]
-                        self.lyrics['hid'] = songSelected[2]
+                        lyrics['artist'] = songSelected[0]
+                        lyrics['song'] = songSelected[1]
+                        lyrics['hid'] = songSelected[2]
                         
-                        self.lyrics['lyrics'] = search.ShowLyrics(self.lyrics['hid'])
+                        lyrics['lyrics'] = search.ShowLyrics(lyrics['hid'])
                      
                         # Detect errors
-                        if self.lyrics['lyrics'].has_key('error'):
+                        if lyrics['lyrics'].has_key('error'):
                             self.output.InsertText(0, _("Lyrics found but NOT added for %s - %s") % (artist, song))
-                            self.error = self.lyrics['lyrics']['error']
-                            errorFrame = MessageDialog(self, _("Error"), self.error, ok = 1, icon = "error")
+                            error = lyrics['lyrics']['error']
+                            errorFrame = MessageDialog(self, _("Error"), error, ok = 1, icon = "error")
                             errorFrame.ShowModal()
                             errorFrame.Destroy()
                         else:
                             audio.add(USLT(encoding=3, desc='', lang=u'eng',
-                            text=self.lyrics['lyrics']['lyrics']))
-                            print "---------------\r%s\r-------------" % self.lyrics['lyrics']['lyrics']
+                            text=lyrics['lyrics']['lyrics']))
                             audio.save()
                             self.output.InsertText(0, _("Lyrics found and added for %s - %s\r") % (artist, song))
                             added += 1
                             self.statusBar[2] = _("Tags added: %s") % added
-                            self.lyrics['lyrics']['lyrics'] = None
+                            lyrics['lyrics']['lyrics'] = None
 
             if not cancel:
                 break
@@ -191,7 +190,7 @@ class MainFrame(Frame):
     def OnAbout(self, event=None):
         """ About dialog. """
         
-        aboutDialog = AboutDialog(self, _("About lyricsTagger"))
+        aboutDialog = AboutDialog(self, _("About podCow"))
         aboutDialog.ShowModal()
         aboutDialog.Destroy()
     
@@ -219,9 +218,9 @@ class MainFrame(Frame):
         
         Return ({id: [file, status]}, number of files, incomplete files)"""
         
-        fileList = {}  # Dict: {id: [file, status]}
-        id = 0  # File ID
-        missed = 0  # Number of missed tags
+        fileList = {}       # Dict: {id: [file, status]}
+        id = 0              # File ID
+        missed = 0          # Number of missed tags
         self.statusBar[0] = _("Number of files: %s") % 0
         self.statusBar[1] = _("Missed tags: %d") % 0
         
@@ -250,8 +249,7 @@ class MainFrame(Frame):
                         id += 1
                         
                     except Exception, err:
-                        print err
-                        self.error = err
+                        error = err
         
         return (fileList, id, missed)
 
@@ -263,35 +261,30 @@ if __name__ == "__main__":
     
     # Configuration file
     try:
-        configFile = os.path.join(os.path.abspath('wxlyrics.cfg'))
+        configFile = os.path.join(os.path.abspath('musicalcow.cfg'))
         config = ConfigParser.ConfigParser()
         config.readfp(open(configFile, 'r'))
     except Exception, err:
-        configFile = open(os.path.join(os.path.abspath('wxlyrics.cfg')), 'w')
+        configFile = open(os.path.join(os.path.abspath('musicalcow.cfg')), 'w')
         configFile.write("""
-[Program]
-
-name = wxLyrics
-version = 0.1.4.24
-
-[Author]
-name = Vlad
-mail = ze.vlad@gmail.com
-
 [Output]
 basedir = ~/lyrics/
-model = %artist/%album/%artist - %song.txt""")
+model = %artist/%album/%artist - %song.txt
+
+[MusicRoot]
+directory = G:\Documents\Ma musique
+""")
         configFile.close()
-        configFile = os.path.join(os.path.abspath('wxlyrics.cfg'))
+        configFile = os.path.join(os.path.abspath('musicalcow.cfg'))
         config = ConfigParser.ConfigParser()
         config.readfp(open(configFile, 'r'))
         
     # Gettext init
-    gettext.bindtextdomain('wxlyrics')
+    gettext.bindtextdomain('musicalcow')
     locale.setlocale(locale.LC_ALL, '')
-    gettext.textdomain('wxlyrics')
-    gettext.install('wxlyrics', os.path.abspath('locales'), unicode=1)
+    gettext.textdomain('musicalcow')
+    gettext.install('musicalcow', os.path.abspath('locales'), unicode=1)
     
     # Creates windows
-    lyricsTagger = Application(MainFrame, title="lyricsTagger")
-    lyricsTagger.Run()
+    podCow = Application(MainFrame, title="The Pod Cow")
+    podCow.Run()

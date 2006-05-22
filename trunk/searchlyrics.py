@@ -2,7 +2,7 @@
 #
 # Copyright 2006 Vladimir Svoboda
 #
-# This file is a part of wxLyrics
+# This file is a part of The Musical Cow suite
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of version 2 of the GNU General Public License as
@@ -32,7 +32,6 @@ class SearchLyrics:
         
         except Exception, err:
             sys.stderr.write("Cannot reach host: ", err)
-            print err
             result["error"] = _("Cannot reach host")
             resultCode = 1
         

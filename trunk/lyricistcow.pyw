@@ -18,7 +18,7 @@
 #
 # $Id$
 
-__version__ = '0.1.0520'
+__version__ = '0.1.0522'
 
 import sys
 import os
@@ -80,7 +80,7 @@ class MainFrame(Frame):
         # Create menu and body
         self.CreateMenu()
         self.CreateBody()
-        self.SetIcon('wxlyrics.ico')
+        self.SetIcon('lyricistCow.ico')
         
     def CreateBody(self):
         """ Contenu de la frame """
@@ -146,7 +146,7 @@ class MainFrame(Frame):
         helpMenu = Menu(self)
         helpMenu.Append(_("&Help"), self.OnHelp, hotkey = "F1")
         helpMenu.AppendSeparator()
-        helpMenu.Append(_("&About wxLyrics"), self.OnAbout)
+        helpMenu.Append(_("&About lyricistCow"), self.OnAbout)
         
         menuBar.Append(fileMenu, _("&File"))
         menuBar.Append(editMenu, _("&Edit"))
@@ -154,7 +154,7 @@ class MainFrame(Frame):
     
     def OnQuit(self, event=None):
         """ Quit application """
-        quitDialog = MessageDialog(self, text = _("Do you really want to quit wxLyrics"),
+        quitDialog = MessageDialog(self, text = _("Do you really want to quit lyricistCow"),
                                        icon = "question", yes_no = 1)
         if quitDialog.ShowModal() == 'yes':
             self.Close(True)
@@ -227,7 +227,7 @@ class MainFrame(Frame):
     def OnAbout(self, event=None):
         """ About dialog. """
         
-        aboutDialog = AboutDialog(self, _("About wxLyrics"))
+        aboutDialog = AboutDialog(self, _("About lyricistCow"))
         aboutDialog.ShowModal()
         aboutDialog.Destroy()
     
@@ -452,7 +452,7 @@ class PreferencesDialog(CustomDialog):
         """ Save and close. """
         config.set('Output', 'basedir', self.baseDir.GetValue())
         config.set('Output', 'model', self.fileModel.GetValue())
-        config.write(open('wxlyrics.cfg','w'))
+        config.write(open('lyricistCow.cfg','w'))
         self.Close()
         
     def OnBrowse(self, event=None):
@@ -477,14 +477,14 @@ class AboutDialog(CustomDialog):
         import platform
         
         # Create dialog
-        programName = Label(self, "wxLyrics %s" % __version__)
+        programName = Label(self, "lyricistCow %s" % __version__)
         programName.SetFont(('Verdana', 14))
         nb = NoteBook(self, size = (400,300))
         
         # About tab
         aboutTab = Panel(nb)
         
-        aboutTab.copyrightText = _("wxLyrics - A simple lyrics viewer")
+        aboutTab.copyrightText = _("lyricistCow - A simple lyrics viewer")
         aboutTab.copyrightText += "\n(c) 2006, Svoboda Vladimir"
         aboutTab.copyrightText += "\n<ze.vlad@gmail.com>\n"
         aboutTab.copyrightText += _("Lyrics provided by %s") % "leoslyrics"
@@ -533,30 +533,30 @@ if __name__ == "__main__":
     
     # Configuration file
     try:
-        configFile = os.path.join(os.path.abspath('wxlyrics.cfg'))
+        configFile = os.path.join(os.path.abspath('musicalcow.cfg'))
         config = ConfigParser.ConfigParser()
         config.readfp(open(configFile, 'r'))
     except Exception, err:
-        configFile = open(os.path.join(os.path.abspath('wxlyrics.cfg')), 'w')
+        configFile = open(os.path.join(os.path.abspath('musicalcow.cfg')), 'w')
         configFile.write("""
-[Author]
-name = Vlad
-mail = ze.vlad@gmail.com
-
 [Output]
 basedir = ~/lyrics/
-model = %artist/%album/%artist - %song.txt""")
+model = %artist/%album/%artist - %song.txt
+
+[MusicRoot]
+directory = G:\Documents\Ma musique
+""")
         configFile.close()
-        configFile = os.path.join(os.path.abspath('wxlyrics.cfg'))
+        configFile = os.path.join(os.path.abspath('musicalcow.cfg'))
         config = ConfigParser.ConfigParser()
         config.readfp(open(configFile, 'r'))
         
     # Gettext init
-    gettext.bindtextdomain('wxlyrics')
+    gettext.bindtextdomain('musicalcow')
     locale.setlocale(locale.LC_ALL, '')
-    gettext.textdomain('wxlyrics')
-    gettext.install('wxlyrics', os.path.abspath('locales'), unicode=1)
+    gettext.textdomain('musicalcow')
+    gettext.install('musicalcow', os.path.abspath('locales'), unicode=1)
     
     # Creates windows
-    wxLyrics = Application(MainFrame, title="wxLyrics")
-    wxLyrics.Run()
+    lyricistCow = Application(MainFrame, title="lyricistCow")
+    lyricistCow.Run()
