@@ -107,7 +107,7 @@ class MainFrame(Frame):
         self.fileList, self.fileNumber, self.mTags = self.Analyze(self.musicPath.GetValue())
     
     def OnAddLyrics(self, event=None):
-        dlg = ProgressDialog(self, title=_("Add lyrics into audio file"), 
+        dlg = ProgressDialog(self, title=_("Add lyrics into audio file"),
         message=_("Add lyrics to the %d files") % self.mTags, maximum=self.mTags,
         abort=1)
         dlg.Show()
@@ -130,51 +130,57 @@ class MainFrame(Frame):
             
             if result.has_key('error'):
                 self.output.InsertText(0, _("ERROR: ") % result['error'])
-            else:
-                if len(result['songlist']) == 0:
+                return
+            
+            if len(result['songlist']) == 0:
                     self.output.InsertText(0, _("No result for %s - %s\r") % (artist, song))
-                else:
-                    if len(result['songlist'].values()) == 1:
-                        songSelected = result['songlist'][0]
-                    else:
-                        choices = []
-                        
-                        for results in result['songlist'].values():
-                            choices.append("%s - %s"  % (results[1], results[0]))
-                            
-                        choiceDialog = ChoiceDialog(self, choices = choices,
+                    return
+                
+            if len(result['songlist'].values()) == 1:
+                songSelected = result['songlist'][0]
+            else:
+                choices = []
+                
+                for results in result['songlist'].values():
+                    choices.append("%s - %s"  % (results[1], results[0]))
+                    
+                choiceDialog = ChoiceDialog(self, choices = choices,
                                                     prompt = _("Make your choice"),
                                                     title = _("Results"),
                                                     size = (300, 200))
-                        if choiceDialog.ShowModal() == 'ok':
-                            songSelected = result['songlist'][choiceDialog.choice]
+                if choiceDialog.ShowModal() == 'ok':
+                    songSelected = result['songlist'][choiceDialog.choice]
+                
+                choiceDialog.Destroy()
                         
-                        choiceDialog.Destroy()
-                        
-                    if len(songSelected) != 3:
-                        lyrics['error'] = _("No results")
-                        self.output.InsertText(0, _("No result for %s - %s\r") % (artist, song))
-                    else:
-                        # Download lyrics
-                        lyrics['artist'] = songSelected[0]
-                        lyrics['song'] = songSelected[1]
-                        lyrics['hid'] = songSelected[2]
-                        lyrics['lyrics'] = search.ShowLyrics(lyrics['hid'])
+            if len(songSelected) != 3:
+                self.output.InsertText(0, _("No result for %s - %s\r") % (artist, song))
+                return
+            
+             # Download lyrics
+            lyrics['artist'] = songSelected[0]
+            lyrics['song'] = songSelected[1]
+            lyrics['hid'] = songSelected[2]
+            lyrics['lyrics'] = search.ShowLyrics(lyrics['hid'])
                      
-                        # Detect errors
-                        if lyrics['lyrics'].has_key('error'):
-                            self.output.InsertText(0, _("Lyrics found but NOT added for %s - %s") % (artist, song))
-                            self.output.InsertText(0, _("ERROR: ") % lyrics['lyrics']['error'])
-                        else:
-                            audio.add(USLT(encoding=3, desc='', lang=u'eng',
-                            text=lyrics['lyrics']['lyrics']))
-                            audio.save()
-                            self.output.InsertText(0, _("Lyrics found and added for %s - %s\r") % (artist, song))
-                            if (len(lyrics['lyrics']['lyrics'])) <= 1000:
-                                print "%s - %s (len: %s)" % (artist, song, len(str(lyrics['lyrics']['lyrics'])))
-                            added += 1
-                            self.statusBar[2] = _("Tags added: %s") % added
-                            lyrics['lyrics']['lyrics'] = None
+            # Detect errors
+            if lyrics['lyrics'].has_key('error'):
+                self.output.InsertText(0, _("ERROR: ") % lyrics['lyrics']['error'])
+                self.output.InsertText(0, _("Lyrics found but NOT added for %s - %s") % (artist, song))
+                return
+                
+            try:
+                audio.add(USLT(encoding=3, desc='', lang='eng', text=lyrics['lyrics']['lyrics']))
+                audio.save()
+            
+            except Exception,err:
+                self.output.InsertText(0, _("Lyrics found but NOT added for %s - %s") % (artist, song))
+                return
+            
+            self.output.InsertText(0, _("Lyrics found and added for %s - %s\r") % (artist, song))
+            added += 1
+            self.statusBar[2] = _("Tags added: %s") % added
+            lyrics['lyrics']['lyrics'] = None
 
             if not cancel:
                 break
@@ -218,32 +224,32 @@ class MainFrame(Frame):
         self.statusBar[0] = _("Number of files: %s") % 0
         self.statusBar[1] = _("Missed tags: %d") % 0
         
+        # Looking for audio files
         for root, dirs, files in os.walk(musicPath):
             for file in files:
                 if file[-3:] == 'mp3':
                     self.statusBar[0] = _("Number of files: %s") % str(id+1)
                     status = None
                     file = os.path.realpath(os.path.join(root, file))
+                    
                     try:
                         audio = MP3(file)
                         
-                        for items in audio:
-                            i = 0
-                            if items[:4] == 'USLT' and i <= 1:
-                                tags = ID3(file)
-                                if len(str(tags.getall(items)[0])) >= 100:
-                                    status = items
-                                    i += 1
-                                
-                        if status is None:
-                            missed += 1
-                            self.statusBar[1] = _("Missed tags: %d") % missed
-                            
-                        fileList[id] = [file, status]
-                        id += 1
-                        
                     except Exception, err:
-                        error = err
+                        self.output.InsertText(0, _("Error (while scanning (%s - %s): %s\r") % (artist, song, err))
+                        return
+                    
+                    for items in audio:
+                        if items[:4] == 'USLT':
+                            if len(str(ID3(file).getall(items)[0])) >= 100:
+                                status = items
+                                
+                    if status is None:
+                        missed += 1
+                        self.statusBar[1] = _("Missed tags: %d") % missed
+                        
+                    fileList[id] = [file, status]
+                    id += 1
         
         return (fileList, id, missed)
 

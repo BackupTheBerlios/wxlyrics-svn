@@ -25,7 +25,7 @@ class SearchLyrics:
         # Open a socket and analyse XML file to see results
         try:
             resultSock = urllib.urlopen('http://api.leoslyrics.com/api_search.php?auth=wxLyrics&artist=%s&songtitle=%s' %
-                                        (urllib.quote(artist.encode('utf-8')), urllib.quote(song.encode('utf-8'))))
+                                 (urllib.quote(artist.encode('utf-8')), urllib.quote(song.encode('utf-8'))))
             resultDoc = minidom.parse(resultSock).documentElement
             resultSock.close()
             resultCode = resultDoc.getElementsByTagName('response')[0].getAttribute('code')

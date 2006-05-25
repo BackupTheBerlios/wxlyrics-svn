@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2006-04-28 22:09+CEST\n"
+"POT-Creation-Date: 2006-05-24 17:42+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,200 +15,196 @@ msgstr ""
 "Generated-By: pygettext.py 1.5\n"
 
 
-#: ../searchlyrics.py:31
-msgid "Cannot reach host"
-msgstr ""
-
-#: ../searchlyrics.py:68
-msgid "Unknow Album"
-msgstr ""
-
-#: ../searchlyrics.py:77
-msgid "Attempt to download lyrics failed"
-msgstr ""
-
-#: ../wxlyrics.pyw:82
+#: ../lyricistcow.pyw:94
 msgid "Artist"
 msgstr ""
 
-#: ../wxlyrics.pyw:83
+#: ../lyricistcow.pyw:95
 msgid "Song title"
 msgstr ""
 
-#: ../wxlyrics.pyw:84
+#: ../lyricistcow.pyw:96
 msgid "Search"
 msgstr ""
 
-#: ../wxlyrics.pyw:98 ../wxlyrics.pyw:323 ../wxlyrics.pyw:338
+#: ../lyricistcow.pyw:113 ../lyricistcow.pyw:346 ../lyricistcow.pyw:361
 msgid "Lyrics"
 msgstr ""
 
-#: ../wxlyrics.pyw:100 ../wxlyrics.pyw:326 ../wxlyrics.pyw:339
+#: ../lyricistcow.pyw:115 ../lyricistcow.pyw:349 ../lyricistcow.pyw:362
 msgid "Untitled %s"
 msgstr ""
 
-#: ../wxlyrics.pyw:120
+#: ../lyricistcow.pyw:133
 msgid "Open new &tab"
 msgstr ""
 
-#: ../wxlyrics.pyw:121
+#: ../lyricistcow.pyw:134
 msgid "&Close tab"
 msgstr ""
 
-#: ../wxlyrics.pyw:123
+#: ../lyricistcow.pyw:136
 msgid "&Save as"
 msgstr ""
 
-#: ../wxlyrics.pyw:124
+#: ../lyricistcow.pyw:137
 msgid "&Auto save"
 msgstr ""
 
-#: ../wxlyrics.pyw:126
+#: ../lyricistcow.pyw:139
 msgid "&Print"
 msgstr ""
 
-#: ../wxlyrics.pyw:128
+#: ../lyricistcow.pyw:141
 msgid "E&xit"
 msgstr ""
 
-#: ../wxlyrics.pyw:131
+#: ../lyricistcow.pyw:144
 msgid "&Preferences"
 msgstr ""
 
-#: ../wxlyrics.pyw:134
+#: ../lyricistcow.pyw:147
 msgid "&Help"
 msgstr ""
 
-#: ../wxlyrics.pyw:136
-msgid "&About wxLyrics"
+#: ../lyricistcow.pyw:149
+msgid "&About lyricistCow"
 msgstr ""
 
-#: ../wxlyrics.pyw:138
+#: ../lyricistcow.pyw:151
 msgid "&File"
 msgstr ""
 
-#: ../wxlyrics.pyw:139
+#: ../lyricistcow.pyw:152
 msgid "&Edit"
 msgstr ""
 
-#: ../wxlyrics.pyw:144
-msgid "Do you really want to quit wxLyrics"
+#: ../lyricistcow.pyw:157
+msgid "Do you really want to quit lyricistCow"
 msgstr ""
 
-#: ../wxlyrics.pyw:205
+#: ../lyricistcow.pyw:223
 msgid "Preferences"
 msgstr ""
 
-#: ../wxlyrics.pyw:211
-msgid "About wxLyrics"
+#: ../lyricistcow.pyw:230
+msgid "About lyricistCow"
 msgstr ""
 
-#: ../wxlyrics.pyw:217
-msgid "Fill the fields 'artist' and 'song title'. You will receive a list of song"
+#: ../lyricistcow.pyw:237
+msgid "Fill the fields 'artist' and 'song title'.                        You will receive a list of song"
 msgstr ""
 
-#: ../wxlyrics.pyw:218
+#: ../lyricistcow.pyw:239
 msgid "Help"
 msgstr ""
 
-#: ../wxlyrics.pyw:234
-msgid "Fill required fields"
-msgstr ""
-
-#: ../wxlyrics.pyw:234 ../wxlyrics.pyw:257 ../wxlyrics.pyw:301
-#: ../wxlyrics.pyw:361 ../wxlyrics.pyw:371
+#: ../lyricistcow.pyw:255 ../lyricistcow.pyw:281 ../lyricistcow.pyw:323
+#: ../lyricistcow.pyw:384 ../lyricistcow.pyw:394
 msgid "Error"
 msgstr ""
 
-#: ../wxlyrics.pyw:241
+#: ../lyricistcow.pyw:256
+msgid "Fill required fields"
+msgstr ""
+
+#: ../lyricistcow.pyw:263
 msgid "Searching"
 msgstr ""
 
-#: ../wxlyrics.pyw:246
+#: ../lyricistcow.pyw:270
 msgid "Seeking '%s' from %s ..."
 msgstr ""
 
-#: ../wxlyrics.pyw:262 ../wxlyrics.pyw:263
+#: ../lyricistcow.pyw:288 ../lyricistcow.pyw:289
 msgid "No correspondence found"
 msgstr ""
 
-#: ../wxlyrics.pyw:277
+#: ../lyricistcow.pyw:304
 msgid "Make your choice"
 msgstr ""
 
-#: ../wxlyrics.pyw:277
+#: ../lyricistcow.pyw:305
 msgid "Results"
 msgstr ""
 
-#: ../wxlyrics.pyw:285
-msgid "No results"
-msgstr ""
-
-#: ../wxlyrics.pyw:294
+#: ../lyricistcow.pyw:317
 msgid "Downloading '%s' ..."
 msgstr ""
 
-#: ../wxlyrics.pyw:361
+#: ../lyricistcow.pyw:384
 msgid "Nothing to save"
 msgstr ""
 
-#: ../wxlyrics.pyw:371
+#: ../lyricistcow.pyw:394
 msgid "Saving failed"
 msgstr ""
 
-#: ../wxlyrics.pyw:394
+#: ../lyricistcow.pyw:417
 msgid "Output directory"
 msgstr ""
 
-#: ../wxlyrics.pyw:395
+#: ../lyricistcow.pyw:418
 msgid "File model"
 msgstr ""
 
-#: ../wxlyrics.pyw:396
+#: ../lyricistcow.pyw:419
 msgid "Example"
 msgstr ""
 
-#: ../wxlyrics.pyw:400
+#: ../lyricistcow.pyw:423
 msgid "Browse"
 msgstr ""
 
-#: ../wxlyrics.pyw:407
+#: ../lyricistcow.pyw:430
 msgid "Ok"
 msgstr ""
 
-#: ../wxlyrics.pyw:408
+#: ../lyricistcow.pyw:431
 msgid "Abort"
 msgstr ""
 
-#: ../wxlyrics.pyw:411
+#: ../lyricistcow.pyw:434
 msgid "Global preferences"
 msgstr ""
 
-#: ../wxlyrics.pyw:456
-msgid "wxLyrics - A simple lyrics viewer"
+#: ../lyricistcow.pyw:481
+msgid "lyricistCow - A simple lyrics viewer"
 msgstr ""
 
-#: ../wxlyrics.pyw:459
+#: ../lyricistcow.pyw:484
 msgid "Lyrics provided by %s"
 msgstr ""
 
-#: ../wxlyrics.pyw:464
+#: ../lyricistcow.pyw:489
 msgid "About"
 msgstr ""
 
-#: ../wxlyrics.pyw:473
+#: ../lyricistcow.pyw:498
 msgid "License"
 msgstr ""
 
-#: ../wxlyrics.pyw:478
+#: ../lyricistcow.pyw:503
 msgid "System: %s"
 msgstr ""
 
-#: ../wxlyrics.pyw:484
+#: ../lyricistcow.pyw:509
 msgid "Informations"
 msgstr ""
 
-#: ../wxlyrics.pyw:490
+#: ../lyricistcow.pyw:515
 msgid "Close"
+msgstr ""
+
+#: ../searchlyrics.py:35
+msgid "Cannot reach host"
+msgstr ""
+
+#: ../searchlyrics.py:72
+msgid "Unknow Album"
+msgstr ""
+
+#: ../searchlyrics.py:81
+msgid "Attempt to download lyrics failed"
 msgstr ""
 
