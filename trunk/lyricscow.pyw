@@ -18,7 +18,7 @@
 #
 # $Id$
 
-__version__ = '0.1.0524'
+__version__ = '0.1.0526'
 
 import sys
 import os
@@ -28,7 +28,10 @@ import ConfigParser
 
 from wax import *
 from wax.tools.choicedialog import ChoiceDialog
+from wax.tools.progressdialog import ProgressDialog
 import wx.html
+from mutagen.mp3 import MP3
+from mutagen.id3 import ID3, USLT
 
 from searchlyrics import SearchLyrics
 
@@ -36,8 +39,8 @@ from searchlyrics import SearchLyrics
 def GenerateHTML(header, content):
     """ Generate HTML code. """
     
-    HTML = "<h3 align=\"center\">%s</h3><br><br> \
-            <span style=\"font-size: 10pt\">%s</span>" % (header, content)
+    HTML = "<h3 align=\"center\">%s</h3><br><br>" \
+           "<span style=\"font-size: 10pt\">%s</span>" % (header, content)
     
     return HTML.encode('latin-1', 'replace').replace('\n', '<br>')
 
@@ -65,7 +68,7 @@ class Printer(wx.html.HtmlEasyPrinting):
     def Print(self, text, linenumbers=1):
         self.PrintText(text)
 
-class MainFrame(Frame):
+class LyricsCow(Frame):
     """ Main window with menu, status bar and notebook (tabs) for lyrics. """
     
     def Body(self):
@@ -155,9 +158,12 @@ class MainFrame(Frame):
         self.usedTab.append(False)
         self.result.append(None)
         self.nb.tab.append(Panel(self.nb))
-        self.nb.tab[tabNumber].lyricsText = TextBox(self.nb.tab[tabNumber], multiline=1, Value=_("Lyrics"))
-        self.nb.tab[tabNumber].AddComponent(self.nb.tab[tabNumber].lyricsText, expand='both')
-        self.nb.AddPage(self.nb.tab[tabNumber], _("Untitled %s") % (int(tabNumber) + 1))
+        self.nb.tab[tabNumber].lyricsText = TextBox(self.nb.tab[tabNumber],
+                                            multiline=1, Value=_("Lyrics"))
+        self.nb.tab[tabNumber].AddComponent(self.nb.tab[tabNumber].lyricsText,
+                                            expand='both')
+        self.nb.AddPage(self.nb.tab[tabNumber], _("Untitled %s") %
+                                                 (int(tabNumber)+1))
         self.nb.tab[tabNumber].Pack()
         
         if movingon == True and self.usedTab[self.nb.GetSelection()] == True:
@@ -422,33 +428,42 @@ class MainFrame(Frame):
             self.lyrics['song'] = songSelected[1]
             self.lyrics['hid'] = songSelected[2]
             
-            self.nb.tab[self.cTab].lyricsText.InsertText(0, _("Downloading '%s' ...") % self.lyrics['song'])
+            self.nb.tab[self.cTab].lyricsText.InsertText(0,
+                                _("Downloading '%s' ...") % self.lyrics['song'])
             self.lyrics['lyrics'] = search.ShowLyrics(self.lyrics['hid'])
                      
             # Detect errors
             if self.lyrics['lyrics'].has_key('error'):
                 self.error = self.lyrics['lyrics']['error']
-                errorFrame = MessageDialog(self, _("Error"), self.error, ok = 1, icon = "error")
+                errorFrame = MessageDialog(self, _("Error"), self.error, ok=1,
+                                           icon='error')
                 errorFrame.ShowModal()
                 errorFrame.Destroy()
                 self.statusBar[1] = self.error
                 return
             
             self.nb.tab[self.cTab].lyricsText.Clear()
-            self.nb.tab[self.cTab].lyricsText.InsertText(0, self.lyrics['lyrics']['lyrics'])
-            self.nb.tab[self.cTab].lyricsText.InsertText(0, "[%s - %s]\r\r" % (self.lyrics['artist'], self.lyrics['song']))
-            self.nb.SetPageText(self.cTab, "%s - %s" % (self.lyrics['artist'], self.lyrics['song']))
-            self.statusBar[1] = self.lyrics['artist'] + " - " + self.lyrics['song']
+            self.nb.tab[self.cTab].lyricsText.InsertText(0,
+                                                self.lyrics['lyrics']['lyrics'])
+            self.nb.tab[self.cTab].lyricsText.InsertText(0, 
+                 "[%s - %s]\r\r" % (self.lyrics['artist'], self.lyrics['song']))
+            self.nb.SetPageText(self.cTab, "%s - %s" % (self.lyrics['artist'],
+                                                        self.lyrics['song']))
+            self.statusBar[1] = "%s - %s" % (self.lyrics['artist'], 
+                                             self.lyrics['song'])
             self.usedTab[self.cTab] = True
-            self.result[self.cTab] = {'artist': self.lyrics['artist'], 'song': self.lyrics['song'],
-                                       'album': self.lyrics['lyrics']['album'], 'lyrics': self.lyrics['lyrics']['lyrics']}
+            self.result[self.cTab] = {'artist': self.lyrics['artist'],
+                                      'song': self.lyrics['song'],
+                                      'album': self.lyrics['lyrics']['album'],
+                                      'lyrics': self.lyrics['lyrics']['lyrics']}
 
     
     def _SaveFile(self, filename):
         """ Save lyrics in text file """
         
         if not self.result[self.cTab]['artist']:
-            errorFrame = MessageDialog(self, _("Error"), _("Nothing to save"), ok = 1, icon = "error")
+            errorFrame = MessageDialog(self, _("Error"), _("Nothing to save"),
+                                       ok=1, icon='error')
             errorFrame.ShowModal()
             errorFrame.Destroy()
             
@@ -458,7 +473,8 @@ class MainFrame(Frame):
                 filename.write(self.nb.tab[self.cTab].lyricsText.GetValue().encode('latin-1', 'replace'))
                 filename.close()
             except Exception, err:
-                errorFrame = MessageDialog(self, _("Error"), _("Saving failed"), ok = 1, icon = "error")
+                errorFrame = MessageDialog(self, _("Error"), _("Saving failed"),
+                                           ok=1, icon='error')
                 errorFrame.ShowModal()
                 errorFrame.Destroy()
     
@@ -471,8 +487,8 @@ class MainFrame(Frame):
     
     def OnAddLyrics(self, event=None):
         dlg = ProgressDialog(self, title=_("Add lyrics into audio file"),
-        message=_("Add lyrics to the %d files") % self.mTags, maximum=self.mTags,
-        abort=1)
+                           message=_("Add lyrics to the %d files") % self.mTags,
+                           maximum=self.mTags, abort=1)
         dlg.Show()
         cancel = True
         added = 0
@@ -483,44 +499,51 @@ class MainFrame(Frame):
             songSelected = {}
             
             audio = ID3(self.fileList[i][0])
-            artist = str(audio.getall('TPE1')[0])
-            song = str(audio.getall('TIT2')[0])
+            artist = unicode(audio.getall('TPE1')[0])
+            song = unicode(audio.getall('TIT2')[0])
             
-            cancel = dlg.Update(i, _("Adding lyrics to %s - %s") % (artist, song))
+            cancel = dlg.Update(i, _("Adding lyrics to %s - %s") %
+                                   (artist, song))
             
             search = SearchLyrics()
             result = search.SearchLyrics(artist, song)
             
             if result.has_key('error'):
                 self.output.InsertText(0, _("ERROR: ") % result['error'])
-                return
+                continue
             
-            if len(result['songlist']) == 0:
-                    self.output.InsertText(0, _("No result for %s - %s\r") % (artist, song))
-                    return
+            if len(result['songlist'].values()) == 0:
+                self.output.InsertText(0, _("No result for %s - %s\r") %
+                                          (artist, song))
+                continue
                 
             if len(result['songlist'].values()) == 1:
+                print "1 resultat"
                 songSelected = result['songlist'][0]
+                
+            # More than one choice => Choice dialog
             else:
                 choices = []
                 
                 for results in result['songlist'].values():
                     choices.append("%s - %s"  % (results[1], results[0]))
-                    
-                choiceDialog = ChoiceDialog(self, choices = choices,
-                                                    prompt = _("Make your choice"),
-                                                    title = _("Results"),
-                                                    size = (300, 200))
+                
+                choiceDialog = ChoiceDialog(self, choices=choices,
+                                            prompt="%s - %s" % (artist, song),
+                                            title=_("Results"),
+                                            size=(300, 200))
                 if choiceDialog.ShowModal() == 'ok':
                     songSelected = result['songlist'][choiceDialog.choice]
                 
                 choiceDialog.Destroy()
                         
             if len(songSelected) != 3:
-                self.output.InsertText(0, _("No result for %s - %s\r") % (artist, song))
-                return
+                print "sel: %s" % len(songSelected)
+                self.output.InsertText(0, _("No result for %s - %s\r") %
+                                          (artist, song))
+                continue
             
-             # Download lyrics
+            # Download lyrics
             lyrics['artist'] = songSelected[0]
             lyrics['song'] = songSelected[1]
             lyrics['hid'] = songSelected[2]
@@ -528,19 +551,24 @@ class MainFrame(Frame):
                      
             # Detect errors
             if lyrics['lyrics'].has_key('error'):
-                self.output.InsertText(0, _("ERROR: ") % lyrics['lyrics']['error'])
-                self.output.InsertText(0, _("Lyrics found but NOT added for %s - %s") % (artist, song))
-                return
+                self.output.InsertText(0,
+                                       _("ERROR: ") % lyrics['lyrics']['error'])
+                self.output.InsertText(0,
+                   _("Lyrics found but NOT added for %s - %s") % (artist, song))
+                continue
                 
             try:
-                audio.add(USLT(encoding=3, desc='', lang='eng', text=lyrics['lyrics']['lyrics']))
+                audio.add(USLT(encoding=3, desc='', lang='eng',
+                               text=lyrics['lyrics']['lyrics']))
                 audio.save()
             
             except Exception,err:
-                self.output.InsertText(0, _("Lyrics found but NOT added for %s - %s") % (artist, song))
-                return
+                self.output.InsertText(0,
+                   _("Lyrics found but NOT added for %s - %s") % (artist, song))
+                continue
             
-            self.output.InsertText(0, _("Lyrics found and added for %s - %s\r") % (artist, song))
+            self.output.InsertText(0, _("Lyrics found and added for %s - %s\r")
+                                      % (artist, song))
             added += 1
             self.statusBar[2] = _("Tags added: %s") % added
             lyrics['lyrics']['lyrics'] = None
@@ -582,7 +610,8 @@ class MainFrame(Frame):
                         audio = MP3(fullpath)
                         
                     except Exception, err:
-                        self.output.InsertText(0, _("Error (while scanning (%s): %s\r") % (file, err))
+                        self.output.InsertText(0,
+                            _("Error (while scanning (%s): %s\r") % (file, err))
                         return
                     
                     for items in audio:
@@ -607,12 +636,13 @@ class PreferencesDialog(CustomDialog):
         mainPanel = VerticalPanel(self)
         
         # Options
-        gPanel = FlexGridPanel(mainPanel, rows = 3, cols = 3, hgap = 5, vgap = 5)
+        gPanel = FlexGridPanel(mainPanel, rows=3, cols=3, hgap=5, vgap=5)
         
         self.baseDir = TextBox(gPanel, Value=os.path.expanduser(config.get('Output', 'BaseDir')))
         self.fileModel = TextBox(gPanel, Value=config.get('Output', 'Model'))
         self.fileModel.OnChar = self._RegenerateExample
-        self.fileExample = Label(gPanel, GenerateFilename(artist = 'Simple Plan', song = 'Thank You', album = 'Still Not Getting Any'))
+        self.fileExample = Label(gPanel, GenerateFilename(artist='Simple Plan',
+                           song='Thank You', album='Still Not Getting Any'))
         
         gPanel.AddComponent(0, 0, Label(gPanel, _("Output directory"), align='right'), border=5)
         gPanel.AddComponent(0, 1, Label(gPanel, _("File model"), align='right'), border=5)
@@ -627,11 +657,14 @@ class PreferencesDialog(CustomDialog):
         
         # Buttons
         vPanel = HorizontalPanel(mainPanel)
-        vPanel.AddComponent(Button(self.vPanel, _("Ok"), event=self.OnOk), border=3, align='center')
-        vPanel.AddComponent(Button(self.vPanel, _("Abort"), event=self.OnQuit), border=3, align='center')
+        vPanel.AddComponent(Button(self.vPanel, _("Ok"), event=self.OnOk),
+                            border=3, align='center')
+        vPanel.AddComponent(Button(self.vPanel, _("Abort"), event=self.OnQuit),
+                            border=3, align='center')
         vPanel.Pack()
      
-        mainPanel.AddComponent(Label(mainPanel, _("Global preferences")), border=8, align='center')
+        mainPanel.AddComponent(Label(mainPanel, _("Global preferences")),
+                               border=8, align='center')
         mainPanel.AddComponent(gPanel, border=10)
         mainPanel.AddComponent(self.vPanel, border=10, align='center')
         mainPanel.Pack()
@@ -659,9 +692,9 @@ class PreferencesDialog(CustomDialog):
             dirDialog.Destroy()
     
     def _RegenerateExample(self, event=None):
-        self.fileExample.SetLabel(GenerateFilename(model = self.fileModel.GetValue(),
-                                  artist = 'Simple Plan', song = 'Thank You',
-                                  album = 'Still Not Getting Any'))
+        self.fileExample.SetLabel(GenerateFilename(model=self.fileModel.GetValue(),
+                                  artist='Simple Plan', song='Thank You',
+                                  album='Still Not Getting Any'))
         event.Skip()
         
 class AboutDialog(CustomDialog):
@@ -701,8 +734,8 @@ class AboutDialog(CustomDialog):
         infoTab = Panel(nb)
         
         infoTab.infoText = _("System: %s") % platform.platform()
-        infoTab.infoText += "\nPython: %s\nwxPython: %s" % (platform.python_version(),
-                                                            wx.VERSION_STRING)
+        infoTab.infoText += "\nPython: %s\nwxPython: %s" % (
+                                   platform.python_version(), wx.VERSION_STRING)
         
         infoTab.AddComponent(Label(infoTab, infoTab.infoText), border=10)
         infoTab.Pack()
@@ -752,5 +785,5 @@ directory = ~/
     gettext.install('musicalcow', os.path.abspath('locales'), unicode=1)
     
     # Creates windows
-    lyricsCow = Application(MainFrame, title="lyricistCow")
+    lyricsCow = Application(LyricsCow, title="The Musical Cow")
     lyricsCow.Run()
