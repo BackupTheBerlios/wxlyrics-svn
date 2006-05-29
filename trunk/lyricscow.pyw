@@ -18,7 +18,7 @@
 #
 # $Id$
 
-__version__ = '0.1.0526'
+__version__ = '0.2.0529'
 
 import sys
 import os
@@ -34,7 +34,8 @@ from mutagen.mp3 import MP3
 from mutagen.id3 import ID3, USLT
 
 from searchlyrics import SearchLyrics
-
+from cowabout import AboutDialog
+from cowpreferences import PreferencesDialog
 
 def GenerateHTML(header, content):
     """ Generate HTML code. """
@@ -77,53 +78,66 @@ class LyricsCow(Frame):
         self.SetStatusBar(self.statusBar)
         
         # Create menu and body
-        self.LyricsCowMenu()
+        self.LyricsCowMenu(common=1)
         self.lyricsCow = self.LyricsCowBody()
-        #self.SetIcon('lyricistCow.ico')
+        self.SetIcon('python_transparent.ico')
         self.SetSize((400, 400))
         
-    def CommonMenu(self):
-        """ Create menu bar """
+    def CommonMenu(self, lyricscow=0, podcow=0):
+        """ Create menu bar
+        
+        If lyricscow/podcow is true, switching mode (remake menu)
+        """
+     
+        if lyricscow or podcow:
+            self.menuBar.Remove(0)
+            return
+        
         self.menuBar = MenuBar(self)
         
         editMenu = Menu(self)
         editMenu.Append(_("Search mode"), self.CreateLyricsCow, type='radio')
-        editMenu.Append(_("Library completing mode"), self.CreatePodCow, type='radio')
+        editMenu.Append(_("Library tagging mode"), self.CreatePodCow, type='radio')
         editMenu.AppendSeparator()
-        editMenu.Append(_("&Preferences"), self.OnPreferences)
+        editMenu.Append(_("&Preferences"), self.OnPreferences, hotkey='Ctrl-P')
         
         helpMenu = Menu(self)
-        helpMenu.Append(_("&Help"), self.OnHelp, hotkey = "F1")
+        helpMenu.Append(_("&Help"), self.OnHelp, hotkey='F1')
         helpMenu.AppendSeparator()
         helpMenu.Append(_("&About The Musical Cow"), self.OnAbout)
         
         self.menuBar.Append(editMenu, _("&Edit"))
         self.menuBar.Append(helpMenu, _("&?"))
         
+        self.editMenu = editMenu
     
-    def LyricsCowMenu(self):
+    def LyricsCowMenu(self, common=0):
         """ Create menu bar """
-        self.CommonMenu()
+        
+        if not common: self.CommonMenu(lyricscow=1)
+        else: self.CommonMenu()
         
         fileMenu = Menu(self)
-        fileMenu.Append(_("Open new &tab"), self._NewTab, hotkey = "Ctrl-T")
-        fileMenu.Append(_("&Close tab"), self._CloseTab, hotkey = "Ctrl-W")
+        fileMenu.Append(_("Open new &tab"), self._NewTab, hotkey='Ctrl-T')
+        fileMenu.Append(_("&Close tab"), self._CloseTab, hotkey='Ctrl-W')
         fileMenu.AppendSeparator()
-        fileMenu.Append(_("&Save as"), self.OnSaveAs, hotkey = "Ctrl-S")
-        fileMenu.Append(_("&Auto save"), self.OnAutoSave, hotkey = "Ctrl-Shift-S")
+        fileMenu.Append(_("&Save as"), self.OnSaveAs, hotkey='Ctrl-S')
+        fileMenu.Append(_("&Auto save"), self.OnAutoSave, hotkey='Ctrl-Shift-S')
         fileMenu.AppendSeparator()
-        fileMenu.Append(_("&Print"), self.OnPrint, hotkey = "Ctrl-P")
+        fileMenu.Append(_("&Print"), self.OnPrint, hotkey='Ctrl-P')
         fileMenu.AppendSeparator()
-        fileMenu.Append(_("E&xit"), self.OnQuit, hotkey = "Ctrl-Q")
+        fileMenu.Append(_("E&xit"), self.OnQuit, hotkey='Ctrl-Q')
         
         self.menuBar.Insert(0, fileMenu, _("&File"))
   
-    def PodCowMenu(self):
+    def PodCowMenu(self, common=0):
         """ Create menu bar """
-        self.CommonMenu()
+        
+        if not common: self.CommonMenu(podcow=1)
+        else: self.CommonMenu()
         
         fileMenu = Menu(self)
-        fileMenu.Append(_("E&xit"), self.OnQuit, hotkey = "Ctrl-Q")
+        fileMenu.Append(_("E&xit"), self.OnQuit, hotkey='Ctrl-Q')
         
         self.menuBar.Insert(0, fileMenu, _("&File"))
     
@@ -132,6 +146,7 @@ class LyricsCow(Frame):
         
         # Destroy old panel; create a new one; repack
         self.podCow.Destroy()
+        self.podCow = None
         self.lyricsCow = self.LyricsCowBody()
         self.LyricsCowMenu()
         self.Repack()
@@ -143,11 +158,12 @@ class LyricsCow(Frame):
         
         # Destroy old panel; create a new one; repack
         self.lyricsCow.Destroy()
+        
         self.lyricsCow = None
         self.podCow = self.PodCowBody()
         self.PodCowMenu()
         self.Repack()
-     
+        
         self.SetSizeX(self.GetSizeX()+1)
         
     def _NewTab(self, event=None, movingon=True):
@@ -627,130 +643,6 @@ class LyricsCow(Frame):
                     id += 1
         
         return (fileList, id, missed)
-
-class PreferencesDialog(CustomDialog):
-    """ Create Preferences window. """
-    
-    def Body(self):
-        # Main Panel
-        mainPanel = VerticalPanel(self)
-        
-        # Options
-        gPanel = FlexGridPanel(mainPanel, rows=3, cols=3, hgap=5, vgap=5)
-        
-        self.baseDir = TextBox(gPanel, Value=os.path.expanduser(config.get('Output', 'BaseDir')))
-        self.fileModel = TextBox(gPanel, Value=config.get('Output', 'Model'))
-        self.fileModel.OnChar = self._RegenerateExample
-        self.fileExample = Label(gPanel, GenerateFilename(artist='Simple Plan',
-                           song='Thank You', album='Still Not Getting Any'))
-        
-        gPanel.AddComponent(0, 0, Label(gPanel, _("Output directory"), align='right'), border=5)
-        gPanel.AddComponent(0, 1, Label(gPanel, _("File model"), align='right'), border=5)
-        gPanel.AddComponent(0, 2, Label(gPanel, _("Example"), align='right'), border=5)
-        gPanel.AddComponent(1, 0, self.baseDir)
-        gPanel.AddComponent(1, 1, self.fileModel)
-        gPanel.AddComponent(1, 2, self.fileExample, border=6)
-        gPanel.AddComponent(2, 0, Button(gPanel, _("Browse"), self.OnBrowse))
-        gPanel.Pack()
-        
-        gPanel.AddGrowableCol(1)
-        
-        # Buttons
-        vPanel = HorizontalPanel(mainPanel)
-        vPanel.AddComponent(Button(self.vPanel, _("Ok"), event=self.OnOk),
-                            border=3, align='center')
-        vPanel.AddComponent(Button(self.vPanel, _("Abort"), event=self.OnQuit),
-                            border=3, align='center')
-        vPanel.Pack()
-     
-        mainPanel.AddComponent(Label(mainPanel, _("Global preferences")),
-                               border=8, align='center')
-        mainPanel.AddComponent(gPanel, border=10)
-        mainPanel.AddComponent(self.vPanel, border=10, align='center')
-        mainPanel.Pack()
-        
-        self.AddComponent(mainPanel, expand = 'both', border=10)
-        self.Pack()
-        
-    def OnQuit(self, event=None):
-        self.Close()
-    
-    def OnOk(self, event=None):
-        """ Save and close. """
-        config.set('Output', 'basedir', self.baseDir.GetValue())
-        config.set('Output', 'model', self.fileModel.GetValue())
-        config.write(open('lyricistCow.cfg','w'))
-        self.Close()
-        
-    def OnBrowse(self, event=None):
-        dirDialog = DirectoryDialog(self)
-        try:
-            if dirDialog.ShowModal() == 'ok':
-                dirname = dirDialog.GetPath()
-                self.baseDir.SetValue(dirname)
-        finally:
-            dirDialog.Destroy()
-    
-    def _RegenerateExample(self, event=None):
-        self.fileExample.SetLabel(GenerateFilename(model=self.fileModel.GetValue(),
-                                  artist='Simple Plan', song='Thank You',
-                                  album='Still Not Getting Any'))
-        event.Skip()
-        
-class AboutDialog(CustomDialog):
-    """ Create About window. """
-    
-    def Body(self):
-        import platform
-        
-        # Create dialog
-        programName = Label(self, "lyricistCow %s" % __version__)
-        programName.SetFont(('Verdana', 14))
-        nb = NoteBook(self, size = (400,300))
-        
-        # About tab
-        aboutTab = Panel(nb)
-        
-        aboutTab.copyrightText = _("lyricistCow - A simple lyrics viewer")
-        aboutTab.copyrightText += "\n(c) 2006, Svoboda Vladimir"
-        aboutTab.copyrightText += "\n<ze.vlad@gmail.com>\n"
-        aboutTab.copyrightText += _("Lyrics provided by %s") % "leoslyrics"
-        
-        aboutTab.copyright = Label(aboutTab, aboutTab.copyrightText)
-        aboutTab.AddComponent(aboutTab.copyright, border=10)
-        aboutTab.Pack()
-        nb.AddPage(aboutTab, _("About"))
-        
-        # License tab
-        licenseTab = Panel(nb)
-        license = open('COPYING', 'r')
-        licenseTab.text = TextBox(licenseTab, multiline=1, Value=license.read())
-        licenseTab.text.SetEditable(False)
-        licenseTab.AddComponent(licenseTab.text, expand='both', border=5)
-        licenseTab.Pack()
-        nb.AddPage(licenseTab, _("License"))
-        
-        # Informations tab
-        infoTab = Panel(nb)
-        
-        infoTab.infoText = _("System: %s") % platform.platform()
-        infoTab.infoText += "\nPython: %s\nwxPython: %s" % (
-                                   platform.python_version(), wx.VERSION_STRING)
-        
-        infoTab.AddComponent(Label(infoTab, infoTab.infoText), border=10)
-        infoTab.Pack()
-        nb.AddPage(infoTab, _("Informations"))
-        
-        # Window settings
-        self.AddComponent(programName)
-        self.AddSpace(10)
-        self.AddComponent(nb, expand = 'both')
-        self.AddComponent(Button(self, _("Close"), event=self.OnQuit),
-                          border=3, align='center')
-        self.Pack()
-    
-    def OnQuit(self, event=None):
-        self.Close()
         
 if __name__ == "__main__":
     
@@ -785,5 +677,5 @@ directory = ~/
     gettext.install('musicalcow', os.path.abspath('locales'), unicode=1)
     
     # Creates windows
-    lyricsCow = Application(LyricsCow, title="The Musical Cow")
+    lyricsCow = Application(LyricsCow, title="The Lyrics Cow")
     lyricsCow.Run()
