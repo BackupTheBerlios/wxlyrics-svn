@@ -24,8 +24,12 @@ class SearchLyrics:
         
         # Open a socket and analyse XML file to see results
         try:
-            resultSock = urllib.urlopen('http://api.leoslyrics.com/api_search.php?auth=wxLyrics&artist=%s&songtitle=%s' %
-                                 (urllib.quote(artist.encode('utf-8')), urllib.quote(song.encode('utf-8'))))
+            resultSock = urllib.urlopen(
+             'http://api.leoslyrics.com/api_search.php?auth=The%20Musical%20Cow'
+             '&artist=%s&songtitle=%s' % (
+             urllib.quote(artist.encode('utf-8')),
+             urllib.quote(song.encode('utf-8')))
+            )
             resultDoc = minidom.parse(resultSock).documentElement
             resultSock.close()
             resultCode = resultDoc.getElementsByTagName('response')[0].getAttribute('code')
@@ -64,7 +68,9 @@ class SearchLyrics:
         result = {}
         
         try:
-            lyricsSock = urllib.urlopen("http://api.leoslyrics.com/api_lyrics.php?auth=QuodLibet&hid=%s" % ( urllib.quote(hid.encode('utf-8'))))
+            lyricsSock = urllib.urlopen(
+             'http://api.leoslyrics.com/api_lyrics.php?auth=The%20Musical%20Cow'
+             '&hid=%s' % ( urllib.quote(hid.encode('utf-8'))))
             lyricsDoc = minidom.parse(lyricsSock).documentElement
             lyricsSock.close()
             

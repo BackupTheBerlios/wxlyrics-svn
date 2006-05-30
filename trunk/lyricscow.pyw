@@ -83,13 +83,13 @@ class LyricsCow(Frame):
         self.SetIcon('python_transparent.ico')
         self.SetSize((400, 400))
         
-    def CommonMenu(self, lyricscow=0, podcow=0):
+    def CommonMenu(self, mode=None):
         """ Create menu bar
         
         If lyricscow/podcow is true, switching mode (remake menu)
         """
      
-        if lyricscow or podcow:
+        if mode:
             self.menuBar.Remove(0)
             return
         
@@ -111,10 +111,10 @@ class LyricsCow(Frame):
         
         self.editMenu = editMenu
     
-    def LyricsCowMenu(self, common=0):
+    def LyricsCowMenu(self, common=None):
         """ Create menu bar """
         
-        if not common: self.CommonMenu(lyricscow=1)
+        if not common: self.CommonMenu(mode='lyricscow')
         else: self.CommonMenu()
         
         fileMenu = Menu(self)
@@ -130,10 +130,10 @@ class LyricsCow(Frame):
         
         self.menuBar.Insert(0, fileMenu, _("&File"))
   
-    def PodCowMenu(self, common=0):
+    def PodCowMenu(self, common=None):
         """ Create menu bar """
         
-        if not common: self.CommonMenu(podcow=1)
+        if not common: self.CommonMenu(mode='podcow')
         else: self.CommonMenu()
         
         fileMenu = Menu(self)
@@ -174,8 +174,10 @@ class LyricsCow(Frame):
         self.usedTab.append(False)
         self.result.append(None)
         self.nb.tab.append(Panel(self.nb))
-        self.nb.tab[tabNumber].lyricsText = TextBox(self.nb.tab[tabNumber],
-                                            multiline=1, Value=_("Lyrics"))
+        self.nb.tab[tabNumber].lyricsText = TextBox(
+                                            self.nb.tab[tabNumber],
+                                            multiline=1,
+                                            Value=_("Lyrics"))
         self.nb.tab[tabNumber].AddComponent(self.nb.tab[tabNumber].lyricsText,
                                             expand='both')
         self.nb.AddPage(self.nb.tab[tabNumber], _("Untitled %s") %

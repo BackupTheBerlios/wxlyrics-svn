@@ -61,6 +61,22 @@ class PreferencesDialog(CustomDialog):
         lyricsCow.AddComponent(gPanel)
         lyricsCow.Pack()
         
+        # podCow options
+        podCow = GroupBox(self, text=_("podCow options"), direction='v')
+        gPanel = FlexGridPanel(podCow, rows=1, cols=3, hgap=5, vgap=5)
+        
+        self.musicRoot = TextBox(gPanel,
+                                 Value=config.get('MusicRoot', 'Directory'))
+        
+        gPanel.AddComponent(0, 0, Label(gPanel, _("Library root:"), align='right'), border=5)
+        gPanel.AddComponent(1, 0, self.musicRoot, expand='h')
+        gPanel.AddComponent(2, 0, Button(gPanel, _("Browse"), self.OnBrowse))
+        gPanel.AddGrowableCol(1)
+        gPanel.Pack()
+        
+        podCow.AddComponent(gPanel)
+        podCow.Pack()
+        
         # Buttons
         butPnl = HorizontalPanel(self)
         butPnl.AddComponent(Button(butPnl, _("Ok"), event=self.OnOk),
@@ -70,6 +86,7 @@ class PreferencesDialog(CustomDialog):
         butPnl.Pack()
         
         self.AddComponent(lyricsCow, border=10)
+        self.AddComponent(podCow, border=10, expand='h')
         self.AddComponent(butPnl, border=10, align='center')
         
         self.Pack()
@@ -85,12 +102,15 @@ class PreferencesDialog(CustomDialog):
         config.write(open('musicalcow.cfg','w'))
         self.Close()
         
-    def OnBrowse(self, event=None):
+    def OnBrowse(self, event=None, mode='lyricscow'):
         dirDialog = DirectoryDialog(self)
         try:
             if dirDialog.ShowModal() == 'ok':
                 dirname = dirDialog.GetPath()
-                self.baseDir.SetValue(dirname)
+                if mode == 'lyricsCow':
+                    self.baseDir.SetValue(dirname)
+                else:
+                    self.musicRoot.SetValue(dirname)
         finally:
             dirDialog.Destroy()
     
@@ -100,4 +120,4 @@ class PreferencesDialog(CustomDialog):
                                   artist='Simple Plan',
                                   song='Thank You',
                                   album='Still Not Getting Any'))
-        event.Skip()        
+        event.Skip()
