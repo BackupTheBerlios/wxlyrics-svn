@@ -10,17 +10,37 @@
 #
 # $Id$
 
+import os
+import ConfigParser
+
 from wax import *
+
+configFile = os.path.join(os.path.abspath('musicalcow.cfg'))
+config = ConfigParser.ConfigParser()
+config.readfp(open(configFile, 'r'))
+
+def GenerateFilename(*args, **kwds):
+    """ Generate filename from a model. """
+    
+    if kwds.has_key('model'):
+        filename = [kwds['model']]
+    else:
+        filename = [config.get('Output', 'Model')]
+        
+    filename.append(filename[0].replace('%artist', kwds['artist']))
+    filename.append(filename[1].replace('%song', kwds['song']))
+    filename.append(filename[2].replace('%album', kwds['album']))
+    
+    return filename[-1]
 
 class PreferencesDialog(CustomDialog):
     """ Create Preferences window. """
     
     def Body(self):
-        # Main Panel
-        mainPanel = VerticalPanel(self)
         
-        # Options
-        gPanel = FlexGridPanel(mainPanel, rows=3, cols=3, hgap=5, vgap=5)
+        # lyricsCow options
+        lyricsCow = GroupBox(self, text=_("lyricsCow options"), direction='v')
+        gPanel = FlexGridPanel(lyricsCow, rows=3, cols=3, hgap=5, vgap=5)
         
         self.baseDir = TextBox(gPanel, Value=os.path.expanduser(config.get('Output', 'BaseDir')))
         self.fileModel = TextBox(gPanel, Value=config.get('Output', 'Model'))
@@ -35,25 +55,23 @@ class PreferencesDialog(CustomDialog):
         gPanel.AddComponent(1, 1, self.fileModel)
         gPanel.AddComponent(1, 2, self.fileExample, border=6)
         gPanel.AddComponent(2, 0, Button(gPanel, _("Browse"), self.OnBrowse))
+        gPanel.AddGrowableCol(1)
         gPanel.Pack()
         
-        gPanel.AddGrowableCol(1)
+        lyricsCow.AddComponent(gPanel)
+        lyricsCow.Pack()
         
         # Buttons
-        butPnl = HorizontalPanel(mainPanel)
+        butPnl = HorizontalPanel(self)
         butPnl.AddComponent(Button(butPnl, _("Ok"), event=self.OnOk),
                             border=3, align='center')
         butPnl.AddComponent(Button(butPnl, _("Abort"), event=self.OnQuit),
                             border=3, align='center')
         butPnl.Pack()
-     
-        mainPanel.AddComponent(Label(mainPanel, _("Global preferences")),
-                               border=8, align='center')
-        mainPanel.AddComponent(gPanel, border=10)
-        mainPanel.AddComponent(butPnl, border=10, align='center')
-        mainPanel.Pack()
         
-        self.AddComponent(mainPanel, expand = 'both', border=10)
+        self.AddComponent(lyricsCow, border=10)
+        self.AddComponent(butPnl, border=10, align='center')
+        
         self.Pack()
         
     def OnQuit(self, event=None):
