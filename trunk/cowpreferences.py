@@ -42,15 +42,21 @@ class PreferencesDialog(CustomDialog):
         lyricsCow = GroupBox(self, text=_("lyricsCow options"), direction='v')
         gPanel = FlexGridPanel(lyricsCow, rows=3, cols=3, hgap=5, vgap=5)
         
-        self.baseDir = TextBox(gPanel, Value=os.path.expanduser(config.get('Output', 'BaseDir')))
+        self.baseDir = TextBox(gPanel,
+             Value=os.path.expanduser(config.get('Output', 'BaseDir')))
         self.fileModel = TextBox(gPanel, Value=config.get('Output', 'Model'))
         self.fileModel.OnChar = self._RegenerateExample
-        self.fileExample = Label(gPanel, GenerateFilename(artist='Simple Plan',
-                           song='Thank You', album='Still Not Getting Any'))
+        self.fileExample = Label(gPanel, GenerateFilename(
+                                         artist='Simple Plan',
+                                         song='Thank You',
+                                         album='Still Not Getting Any'))
         
-        gPanel.AddComponent(0, 0, Label(gPanel, _("Output directory"), align='right'), border=5)
-        gPanel.AddComponent(0, 1, Label(gPanel, _("File model"), align='right'), border=5)
-        gPanel.AddComponent(0, 2, Label(gPanel, _("Example"), align='right'), border=5)
+        gPanel.AddComponent(0, 0, Label(gPanel, _("Output directory"),
+                            align='right'), border=5)
+        gPanel.AddComponent(0, 1, Label(gPanel, _("File model"),
+                            align='right'), border=5)
+        gPanel.AddComponent(0, 2, Label(gPanel, _("Example"), align='right'),
+                            border=5)
         gPanel.AddComponent(1, 0, self.baseDir)
         gPanel.AddComponent(1, 1, self.fileModel)
         gPanel.AddComponent(1, 2, self.fileExample, border=6)
@@ -66,9 +72,10 @@ class PreferencesDialog(CustomDialog):
         gPanel = FlexGridPanel(podCow, rows=1, cols=3, hgap=5, vgap=5)
         
         self.musicRoot = TextBox(gPanel,
-                                 Value=config.get('MusicRoot', 'Directory'))
+             Value=os.path.expanduser(config.get('MusicRoot', 'Directory')))
         
-        gPanel.AddComponent(0, 0, Label(gPanel, _("Library root:"), align='right'), border=5)
+        gPanel.AddComponent(0, 0, Label(gPanel, _("Library root:"),
+                            align='right'), border=5)
         gPanel.AddComponent(1, 0, self.musicRoot, expand='h')
         gPanel.AddComponent(2, 0, Button(gPanel, _("Browse"), self.OnBrowse))
         gPanel.AddGrowableCol(1)
@@ -99,6 +106,7 @@ class PreferencesDialog(CustomDialog):
         
         config.set('Output', 'basedir', self.baseDir.GetValue())
         config.set('Output', 'model', self.fileModel.GetValue())
+        config.set('MusicRoot', 'directory', self.musicRoot.GetValue())
         config.write(open('musicalcow.cfg','w'))
         self.Close()
         

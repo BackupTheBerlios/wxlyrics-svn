@@ -331,6 +331,7 @@ class MusicalCow(Frame):
         prefDialog = PreferencesDialog(self, _("Preferences"))
         prefDialog.ShowModal()
         prefDialog.Destroy()
+        #LoadConfig()
     
     def OnAbout(self, event=None):
         """ About dialog. """
@@ -644,14 +645,11 @@ class MusicalCow(Frame):
                     id += 1
         
         return (fileList, id, missed)
-        
-if __name__ == "__main__":
+
+def LoadConfig():
+    """ Load config file or create one. """
     
-    # Log error
-    errorFile = open('error.log', 'w')
-    sys.stderr = errorFile
     
-    # Configuration file
     try:
         configFile = os.path.join(os.path.abspath('musicalcow.cfg'))
         config = ConfigParser.ConfigParser()
@@ -670,6 +668,14 @@ directory = ~/
         configFile = os.path.join(os.path.abspath('musicalcow.cfg'))
         config = ConfigParser.ConfigParser()
         config.readfp(open(configFile, 'r'))
+        
+if __name__ == "__main__":
+    
+    # Log error
+    errorFile = open('error.log', 'w')
+    sys.stderr = errorFile
+    
+    LoadConfig()
         
     # Gettext init
     gettext.bindtextdomain('musicalcow')
