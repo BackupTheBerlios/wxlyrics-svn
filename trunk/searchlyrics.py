@@ -24,19 +24,18 @@ class SearchLyrics:
         
         # Open a socket and analyse XML file to see results
         try:
+            
             resultSock = urllib.urlopen(
-             'http://api.leoslyrics.com/api_search.php?auth=The%20Musical%20Cow'
-             '&artist=%s&songtitle=%s' % (
-             urllib.quote(artist.encode('utf-8')),
-             urllib.quote(song.encode('utf-8')))
-            )
+             'http://api.leoslyrics.com/api_search.php?auth=TheMusicalCow'
+             '&artist=%s&songtitle=%s' % (urllib.quote(artist.encode('utf-8')),
+                                          urllib.quote(song.encode('utf-8'))))
             resultDoc = minidom.parse(resultSock).documentElement
             resultSock.close()
             resultCode = resultDoc.getElementsByTagName('response')[0].getAttribute('code')
         
         except Exception, err:
-            sys.stderr.write("Cannot reach host: ", err)
-            result["error"] = _("Cannot reach host")
+            sys.stderr.write("Cannot reach host: %s" % err)
+            #result["error"] = _("Cannot reach host")
             resultCode = 1
         
         if resultCode == '0':
@@ -69,7 +68,7 @@ class SearchLyrics:
         
         try:
             lyricsSock = urllib.urlopen(
-             'http://api.leoslyrics.com/api_lyrics.php?auth=The%20Musical%20Cow'
+             'http://api.leoslyrics.com/api_lyrics.php?auth=TheMusicalCow'
              '&hid=%s' % ( urllib.quote(hid.encode('utf-8'))))
             lyricsDoc = minidom.parse(lyricsSock).documentElement
             lyricsSock.close()

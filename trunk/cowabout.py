@@ -10,10 +10,10 @@
 #
 # $Id$
 
-__version__ = '0.2.0529'
-
 from wax import *
 import wx
+
+import const
 
 class AboutDialog(CustomDialog):
     """ Create About window. """
@@ -22,14 +22,14 @@ class AboutDialog(CustomDialog):
         import platform
         
         # Create dialog
-        programName = Label(self, "lyricistCow %s" % __version__)
+        programName = Label(self, "The Musical Cow %s" % const.__version__)
         programName.SetFont(('Verdana', 14))
         nb = NoteBook(self, size = (400,300))
         
         # About tab
         aboutTab = Panel(nb)
         
-        aboutTab.copyrightText = _("lyricistCow - A simple lyrics viewer")
+        aboutTab.copyrightText = _("The Musical Cow - Lyrics related apps")
         aboutTab.copyrightText += "\n(c) 2006, Svoboda Vladimir"
         aboutTab.copyrightText += "\n<ze.vlad@gmail.com>\n"
         aboutTab.copyrightText += _("Lyrics provided by %s") % "leoslyrics"
@@ -60,7 +60,7 @@ class AboutDialog(CustomDialog):
         nb.AddPage(infoTab, _("Informations"))
         
         # Window settings
-        self.AddComponent(programName)
+        self.AddComponent(programName, align='center')
         self.AddSpace(10)
         self.AddComponent(nb, expand = 'both')
         self.AddComponent(Button(self, _("Close"), event=self.OnQuit),
